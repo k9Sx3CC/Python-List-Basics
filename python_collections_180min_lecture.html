@@ -1,0 +1,1778 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Collections Lecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a single readable column on blueprint grid paper; the class = blueprint, objects = things built from it */
+:root{
+  --bg:#eef3fa; --grid:#dbe5f3; --paper:#ffffff; --ink:#132039; --muted:#56637c; --line:#d3ddec;
+  --blue:#1e5bbd; --blue-soft:#e3ecfa; --amber:#c98a06; --amber-soft:#fcf1d6;
+  --good:#1b7f4f; --good-soft:#e1f4ea; --bad:#b93a24; --bad-soft:#fbe6e1;
+  --code-bg:#0f1a30; --code-fg:#e4ebf7; --code-line:#1d2b48;
+  --t-kw:#ff9e64; --t-str:#9ece6a; --t-num:#f7c66a; --t-com:#7c8bad; --t-def:#7dcfff; --t-self:#e98bd4; --t-bi:#b4a7ff;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0b1425; --grid:#13213a; --paper:#111e36; --ink:#e6edfa; --muted:#9daccb; --line:#22355a;
+  --blue:#6ea4ff; --blue-soft:#172c52; --amber:#f2b733; --amber-soft:#33290f;
+  --good:#4cc78b; --good-soft:#123323; --bad:#ff7d66; --bad-soft:#3a1a14;
+  --code-bg:#070e1c; --code-fg:#e4ebf7; --code-line:#16233d; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0b1425; --grid:#13213a; --paper:#111e36; --ink:#e6edfa; --muted:#9daccb; --line:#22355a;
+  --blue:#6ea4ff; --blue-soft:#172c52; --amber:#f2b733; --amber-soft:#33290f;
+  --good:#4cc78b; --good-soft:#123323; --bad:#ff7d66; --bad-soft:#3a1a14;
+  --code-bg:#070e1c; --code-fg:#e4ebf7; --code-line:#16233d; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:17px; line-height:1.6;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+.wrap{max-width:860px; margin:0 auto; padding-inline:16px; padding-block:0 64px}
+h1,h2,h3{font-family:var(--f-display); text-wrap:balance; line-height:1.15; margin:0}
+h1{font-size:clamp(2.1rem,5.5vw,3.3rem); font-weight:800; letter-spacing:-.02em}
+h2{font-size:clamp(1.55rem,3.6vw,2rem); font-weight:700}
+h3{font-size:1.2rem; font-weight:700}
+p{margin:0; max-width:66ch}
+code{font-family:var(--f-mono); font-size:.88em; background:var(--blue-soft); color:var(--blue); padding:.08em .35em; border-radius:4px}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--amber); outline-offset:2px}
+
+/* header */
+header.hero{padding-block:48px 28px; display:grid; gap:16px}
+.eyebrow{font-family:var(--f-mono); font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--blue)}
+.lead{font-size:1.15rem; color:var(--muted)}
+.meta{display:flex; flex-wrap:wrap; gap:8px}
+.tag{font-family:var(--f-mono); font-size:.78rem; border:1px solid var(--line); background:var(--paper); padding:4px 10px; border-radius:999px; color:var(--muted)}
+
+/* nav */
+nav.toc{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--bg); border-bottom:1px solid var(--line); margin-inline:-16px; padding:10px 16px; overflow-x:auto; white-space:nowrap}
+nav.toc a{display:inline-block; font-family:var(--f-mono); font-size:.8rem; text-decoration:none; color:var(--muted); padding:5px 10px; border-radius:6px; margin-right:2px}
+nav.toc a:hover{background:var(--blue-soft); color:var(--blue)}
+
+section{padding-block:44px 8px; display:grid; gap:18px; scroll-margin-top:56px}
+.sec-head{display:grid; gap:6px}
+.num{font-family:var(--f-mono); font-size:.8rem; color:var(--amber); font-weight:600; letter-spacing:.06em}
+
+.panel{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:20px; display:grid; gap:14px; min-width:0}
+.ask{border-left:4px solid var(--amber); background:var(--amber-soft); padding:12px 16px; border-radius:0 8px 8px 0}
+.ask b{font-family:var(--f-mono); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--amber); display:block; margin-bottom:2px}
+.note{color:var(--muted); font-size:.95rem}
+
+/* code */
+.code{position:relative; background:var(--code-bg); color:var(--code-fg); border-radius:10px; min-width:0}
+.code pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:var(--f-mono); font-size:.9rem; line-height:1.65; tab-size:4}
+.copy{position:absolute; top:8px; right:8px; font-family:var(--f-mono); font-size:.72rem; background:var(--code-line); color:var(--code-fg); border:0; border-radius:6px; padding:4px 9px; cursor:pointer}
+.copy:hover{background:var(--blue); color:#fff}
+.t-kw{color:var(--t-kw)} .t-str{color:var(--t-str)} .t-num{color:var(--t-num)} .t-com{color:var(--t-com); font-style:italic}
+.t-def{color:var(--t-def); font-weight:600} .t-self{color:var(--t-self)} .t-bi{color:var(--t-bi)}
+.out{font-family:var(--f-mono); font-size:.9rem; background:var(--blue-soft); border-radius:8px; padding:10px 14px; white-space:pre-wrap; overflow-x:auto}
+.out::before{content:"OUTPUT"; display:block; font-size:.68rem; letter-spacing:.1em; color:var(--blue); margin-bottom:4px}
+.out.err{background:var(--bad-soft)} .out.err::before{content:"ERROR"; color:var(--bad)}
+
+/* two column */
+.cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px}
+.cols > *{min-width:0}
+
+/* analogy */
+.analogy{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
+.an{border:1px dashed var(--line); border-radius:10px; padding:14px; background:var(--paper)}
+.an .pair{display:flex; justify-content:space-between; gap:8px; font-family:var(--f-mono); font-size:.82rem; margin-top:6px}
+.an .pair span:first-child{color:var(--blue)} .an .pair span:last-child{color:var(--amber)}
+
+/* blueprint diagram */
+.bp{display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1.4fr); gap:14px; align-items:center}
+.bp-class{border:2px solid var(--blue); border-radius:10px; padding:14px; background:var(--blue-soft); font-family:var(--f-mono); font-size:.85rem}
+.bp-class .ttl{font-weight:600; color:var(--blue); margin-bottom:6px}
+.bp-arrow{font-family:var(--f-mono); color:var(--muted); text-align:center; font-size:.8rem}
+.bp-objs{display:grid; gap:8px}
+.bp-obj{border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-family:var(--f-mono); font-size:.8rem; background:var(--paper)}
+.bp-obj b{color:var(--amber)}
+@media (max-width:620px){ .bp{grid-template-columns:1fr} .bp-arrow{transform:none} }
+
+/* sort game */
+.tabs{display:flex; flex-wrap:wrap; gap:6px}
+.tab{font:inherit; font-size:.9rem; border:1px solid var(--line); background:var(--paper); color:var(--ink); padding:6px 14px; border-radius:999px; cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--blue); color:#fff; border-color:var(--blue)}
+.sort-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:10px}
+.item{border:1px solid var(--line); border-radius:10px; padding:10px 12px; display:grid; gap:8px; background:var(--paper)}
+.item .w{font-weight:700}
+.item .btns{display:flex; gap:6px}
+.item button{flex:1; font:inherit; font-size:.82rem; border:1px solid var(--line); background:var(--bg); color:var(--ink); border-radius:6px; padding:5px 6px; cursor:pointer}
+.item.ok{border-color:var(--good); background:var(--good-soft)}
+.item.no{border-color:var(--bad); background:var(--bad-soft)}
+.item .fb{font-size:.82rem; font-family:var(--f-mono)}
+.score{font-family:var(--f-mono); font-size:.9rem; color:var(--muted); font-variant-numeric:tabular-nums}
+
+/* factory */
+.form{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; align-items:end}
+.form label{display:grid; gap:4px; font-size:.82rem; color:var(--muted); font-family:var(--f-mono)}
+.form input,.form select{font:inherit; font-size:.95rem; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink); width:100%}
+.btn{font:inherit; font-weight:700; font-size:.95rem; background:var(--blue); color:#fff; border:0; border-radius:8px; padding:9px 16px; cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent; color:var(--blue); border:1px solid var(--blue)}
+.pyline{font-family:var(--f-mono); font-size:.85rem; color:var(--muted)}
+.objs{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px}
+.obj{border:1px solid var(--line); border-top:4px solid var(--amber); border-radius:10px; padding:12px; display:grid; gap:8px; background:var(--paper); min-width:0}
+.obj .oname{font-family:var(--f-mono); font-weight:600}
+.obj .oname span{color:var(--muted); font-weight:400}
+.obj dl{margin:0; display:grid; grid-template-columns:auto 1fr; gap:2px 10px; font-family:var(--f-mono); font-size:.8rem}
+.obj dt{color:var(--blue)} .obj dd{margin:0; overflow-wrap:anywhere}
+.obj button{font-family:var(--f-mono); font-size:.8rem; border:1px solid var(--line); background:var(--bg); color:var(--ink); border-radius:6px; padding:5px 8px; cursor:pointer; text-align:left}
+.obj .said{font-family:var(--f-mono); font-size:.8rem; color:var(--good)}
+
+/* stepper */
+.stepper{display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:14px}
+@media (max-width:700px){ .stepper{grid-template-columns:1fr} }
+.stepper .ln{display:block; padding:0 6px; border-radius:4px; opacity:.55}
+.stepper .ln.on{background:var(--code-line); opacity:1; box-shadow:inset 3px 0 0 var(--amber)}
+.stepper .ln.done{opacity:.9}
+.explain{display:grid; gap:10px; align-content:start}
+.explain .stepno{font-family:var(--f-mono); font-size:.78rem; color:var(--muted); font-variant-numeric:tabular-nums}
+.mem{display:flex; flex-wrap:wrap; gap:8px}
+.mem .box{border:1px solid var(--amber); border-radius:8px; padding:6px 10px; font-family:var(--f-mono); font-size:.78rem; background:var(--amber-soft)}
+.ctrl{display:flex; gap:8px; flex-wrap:wrap}
+
+/* reveals */
+details{border:1px solid var(--line); border-radius:10px; background:var(--paper)}
+details > summary{cursor:pointer; padding:10px 14px; font-weight:700; list-style:none; display:flex; align-items:center; gap:8px}
+details > summary::-webkit-details-marker{display:none}
+details > summary::before{content:"+"; font-family:var(--f-mono); color:var(--blue); width:1ch}
+details[open] > summary::before{content:"–"}
+details > .body{padding:0 14px 14px; display:grid; gap:10px}
+.reveal{border:0; background:transparent}
+.reveal > summary{padding:6px 0; font-weight:700; color:var(--blue); font-size:.92rem}
+.reveal > .body{padding:4px 0 0}
+.ex{display:grid; gap:12px}
+.ex-head{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap}
+.lvl{font-family:var(--f-mono); font-size:.72rem; padding:2px 8px; border-radius:999px; background:var(--blue-soft); color:var(--blue)}
+.lvl.med{background:var(--amber-soft); color:var(--amber)}
+.lvl.hard{background:var(--bad-soft); color:var(--bad)}
+
+/* quiz */
+.q{display:grid; gap:8px}
+.q .qt{font-weight:700}
+.opts{display:grid; gap:6px}
+.opt{font:inherit; text-align:left; border:1px solid var(--line); background:var(--bg); color:var(--ink); border-radius:8px; padding:8px 12px; cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--blue)}
+.opt.right{border-color:var(--good); background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad); background:var(--bad-soft)}
+.opt[disabled]{cursor:default}
+.qfb{font-size:.9rem; color:var(--muted)}
+
+/* plan table */
+.tbl{overflow-x:auto}
+table{border-collapse:collapse; width:100%; font-size:.93rem}
+th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+th{font-family:var(--f-mono); font-size:.75rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+td.t{font-family:var(--f-mono); white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--blue)}
+
+.cheat{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px}
+.cheat div{border:1px solid var(--line); border-radius:10px; padding:12px; background:var(--paper)}
+.cheat b{font-family:var(--f-mono); color:var(--blue); display:block; margin-bottom:4px}
+footer{padding-block:40px 0; color:var(--muted); font-size:.85rem}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important; scroll-behavior:auto!important} }
+html{scroll-behavior:smooth}
+
+/* ---- Python collections lecture: extra widgets ---- */
+.row{display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end}
+.chip{font-family:var(--f-mono); font-size:.8rem; border:1px solid var(--line); background:var(--bg); color:var(--ink); border-radius:999px; padding:4px 12px; cursor:pointer}
+.chip:hover{border-color:var(--blue); color:var(--blue)}
+.lbl{font-family:var(--f-mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+
+/* index explorer */
+.cells{display:flex; flex-wrap:wrap; gap:6px}
+.cell{min-width:84px; border:1px solid var(--line); border-radius:8px; background:var(--paper); text-align:center; font-family:var(--f-mono); font-size:.85rem; padding:4px 8px; display:grid; gap:2px}
+.cell .pi{color:var(--blue); font-size:.75rem}
+.cell .ni{color:var(--muted); font-size:.75rem}
+.cell.sel{background:var(--amber-soft); border-color:var(--amber); box-shadow:0 0 0 1px var(--amber)}
+.pycall{font-family:var(--f-mono); font-size:.95rem; color:var(--ink)}
+.pycall b{color:var(--amber)}
+
+/* set explorer */
+.venn{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px}
+.vr{border:2px dashed var(--line); border-radius:12px; padding:10px; min-height:84px; font-family:var(--f-mono); font-size:.85rem; display:grid; gap:4px; align-content:start; overflow-wrap:anywhere}
+.vr .vl{font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.vr.on{border-style:solid; border-color:var(--amber); background:var(--amber-soft)}
+@media (max-width:520px){ .venn{grid-template-columns:1fr} }
+
+/* aliasing demo and dictionary lab */
+.al{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px}
+.al .obj{border-top-color:var(--blue)}
+.pair-line{font-family:var(--f-mono); font-size:.85rem; color:var(--muted)}
+.dl-views{display:grid; gap:8px}
+.dl-views .out::before{content:attr(data-h)}
+.msg{font-family:var(--f-mono); font-size:.85rem; min-height:1.4em; color:var(--good)}
+.msg.bad{color:var(--bad)}
+
+/* which collection game */
+.wg-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:10px}
+.item .btns{flex-wrap:wrap}
+.item .btns button{min-width:56px}
+[hidden]{display:none!important}
+
+/* ---- v2 additions ---- */
+.progress{position:fixed; top:0; left:0; right:0; height:3px; z-index:20}
+.progress i{display:block; height:100%; width:0; background:var(--amber)}
+.say{border-left:4px solid var(--good); background:var(--good-soft); padding:12px 16px; border-radius:0 8px 8px 0}
+.say b{font-family:var(--f-mono); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--good); display:block; margin-bottom:2px}
+.ask.trap{border-left-color:var(--bad); background:var(--bad-soft)}
+.ask.trap b{color:var(--bad)}
+.an p{margin:6px 0 0; font-size:.93rem; color:var(--muted)}
+
+.rgrid{display:grid; gap:4px; width:100%; max-width:440px; margin-inline:auto}
+.rgrid .gc{aspect-ratio:1; border:1px solid var(--line); border-radius:6px; background:var(--paper); font-family:var(--f-mono); font-size:.9rem; color:var(--muted); cursor:pointer; display:grid; place-items:center; padding:0; min-width:0}
+.rgrid .gc.obs{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+.rgrid .gc.sel{outline:3px solid var(--amber); outline-offset:-3px}
+.rgrid.rover .gc{cursor:default; font-size:1rem}
+.rgrid.rover .gc.vis{background:var(--blue-soft); color:var(--blue)}
+.rgrid.rover .gc.obs{background:var(--bad-soft); color:var(--bad); border-color:var(--bad)}
+.rgrid.rover .gc.bot{background:var(--amber-soft); border-color:var(--amber); color:var(--amber); font-weight:700; font-size:1.25rem}
+#wzBox .qt{font-weight:700; font-size:1.05rem}
+.analogy{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.y{color:var(--good); font-weight:700} .n{color:var(--bad); font-weight:700} .m{color:var(--amber); font-weight:700}
+.optable table, .cmp table{min-width:760px}
+.optable td, .cmp td{vertical-align:top}
+.optable code{white-space:pre-wrap; overflow-wrap:anywhere}
+.cmp td:first-child{white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"><i id="progBar"></i></div>
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">Python Basics · Fall 2026 · Semester 2 · Robotics &amp; Computer Systems</div>
+  <h1>Python Collections for Robot Brains</h1>
+  <p class="lead">A robot that cannot remember is just a toy. Today we learn the four built-in ways Python stores many values in one variable: <b>lists, tuples, sets and dictionaries</b>. You will map a grid, plan a route, track visited cells, and finish by driving a simulated rover with code you understand line by line.</p>
+  <div class="meta">
+    <span class="tag">Python 3</span><span class="tag">180 minutes</span><span class="tag">BS Robotics &amp; BS Computer Systems</span><span class="tag">Engr. Khadeeja Tariq</span>
+  </div>
+  <details>
+    <summary>Session plan for the instructor (180 min)</summary>
+    <div class="body tbl">
+      <table>
+        <thead><tr><th>Time</th><th>Segment</th><th>Class activity</th></tr></thead>
+        <tbody>
+          <tr><td class="t">000–008</td><td>1 Mission briefing</td><td>Students guess which collection each robot memory job needs.</td></tr>
+          <tr><td class="t">008–016</td><td>2 Python warm-up</td><td>Quick checks on variables, <code>if</code>, loops and functions.</td></tr>
+          <tr><td class="t">016–030</td><td>3 Lists: reading</td><td>Index Explorer on the projector, class predicts before you click.</td></tr>
+          <tr><td class="t">030–044</td><td>4 Lists: changing, with the cheat tables</td><td>Step through the to-do list, then read the add / delete / sort tables row by row.</td></tr>
+          <tr><td class="t">044–054</td><td>5 Loops and comprehensions</td><td>Type the sensor examples together in Thonny or IDLE.</td></tr>
+          <tr><td class="t">054–064</td><td>6 Sorting and the copy trap</td><td>Run the <code>b = a</code> versus <code>a.copy()</code> demo.</td></tr>
+          <tr><td class="t">064–074</td><td>7 Nested lists: robot maps</td><td>Students click the Grid Builder and read cells with <code>grid[row][col]</code>.</td></tr>
+          <tr><td class="t">074–082</td><td>8 Checkpoint 1</td><td>Pairs predict outputs and spot bugs, 2 minutes each.</td></tr>
+          <tr><td class="t">082–092</td><td>Break</td><td>10 minutes.</td></tr>
+          <tr><td class="t">092–104</td><td>9 Tuples</td><td>Try to change a tuple, read the error, unpack a waypoint.</td></tr>
+          <tr><td class="t">104–118</td><td>10 Sets</td><td>Set Explorer: two robots, four operations; read the set tables.</td></tr>
+          <tr><td class="t">118–132</td><td>11 Dictionaries</td><td>Dictionary Lab: build a robot profile; read the dictionary tables.</td></tr>
+          <tr><td class="t">132–142</td><td>12 Compare the four, then choose</td><td>Walk the comparison table, run the same-task code, then game and wizard.</td></tr>
+          <tr><td class="t">142–154</td><td>13 Rover Mission Control</td><td>Read the program, then drive the Rover Simulator.</td></tr>
+          <tr><td class="t">154–162</td><td>14 Debug clinic</td><td>Pairs work on predict-and-fix problems.</td></tr>
+          <tr><td class="t">162–172</td><td>15 Practice lab</td><td>Students write E1 to E5 on their own laptops.</td></tr>
+          <tr><td class="t">172–180</td><td>16 Speed round, quiz, 17 Summary</td><td>Myth or fact, quiz on the projector, homework.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</header>
+
+<nav class="toc" aria-label="Lecture sections">
+  <a href="#mission">1 Mission</a><a href="#warmup">2 Warm-up</a><a href="#lists">3 Lists</a><a href="#change">4 Change</a><a href="#loops">5 Loops</a><a href="#sortcopy">6 Sort &amp; copy</a><a href="#grid">7 Grids</a><a href="#check1">8 Checkpoint</a><a href="#tuples">9 Tuples</a><a href="#sets">10 Sets</a><a href="#dicts">11 Dicts</a><a href="#which">12 Compare</a><a href="#rover">13 Rover</a><a href="#clinic">14 Clinic</a><a href="#practice">15 Practice</a><a href="#quiz">16 Quiz</a><a href="#wrap">17 Summary</a>
+</nav>
+<section id="mission">
+  <div class="sec-head"><span class="num">01 · 8 min</span><h2>Mission briefing: Rover needs a memory</h2></div>
+<p>Meet <b>Rover</b>, a small robot you will program all day. To do anything useful Rover must remember things: what its sensors read, where it is, where it has been, and how it is set up. In plain Python, one variable holds one value. That is not enough.</p>
+<div class="code"><pre class="py">
+reading1 = 23.5
+reading2 = 24.1
+reading3 = 22.8
+reading4 = 25.0
+# A real robot takes 100 readings per second. This cannot scale.
+</pre></div>
+<p>A <b>collection</b> keeps many values together under one name, so we can loop over them, count them, search them and change them. Python gives us four, and each one fits a different robot job:</p>
+<div class="panel"><div class="bp">
+      <div class="bp-class"><div class="ttl">Rover's memory jobs</div>log sensor readings<br>remember a position<br>track visited cells<br>store settings</div>
+      <div class="bp-arrow">needs →</div>
+      <div class="bp-objs">
+        <div class="bp-obj"><b>list</b> · readings = [23.5, 24.1, 22.8]</div>
+        <div class="bp-obj"><b>tuple</b> · position = (3, 4)</div>
+        <div class="bp-obj"><b>set</b> · visited = {(0, 0), (0, 1)}</div>
+        <div class="bp-obj"><b>dict</b> · settings = {"speed": 5}</div>
+      </div></div></div>
+<div class="analogy">
+      <div class="an"><h3>List = playlist</h3><p>Songs in order. Add, remove, shuffle, play song number 3.</p><div class="pair"><span>[ ]</span><span>order + change</span></div></div>
+      <div class="an"><h3>Tuple = sealed envelope</h3><p>GPS coordinates on a label. You read them, you do not edit them.</p><div class="pair"><span>( )</span><span>fixed</span></div></div>
+      <div class="an"><h3>Set = sticker album</h3><p>One of each sticker. You only ask: do I have this one?</p><div class="pair"><span>{ }</span><span>unique</span></div></div>
+      <div class="an"><h3>Dict = spec sheet</h3><p>Look up "battery" and get 80. You search by label, not by position.</p><div class="pair"><span>{k: v}</span><span>lookup</span></div></div>
+    </div>
+<div class="tbl"><table><thead><tr><th>Collection</th><th>Brackets</th><th>Ordered?</th><th>Changeable?</th><th>Duplicates?</th><th>Example</th></tr></thead><tbody><tr><td><b>List</b></td><td><code>[ ]</code></td><td>Yes</td><td>Yes</td><td>Allowed</td><td><code>["scan", "turn"]</code></td></tr><tr><td><b>Tuple</b></td><td><code>( )</code></td><td>Yes</td><td>No, fixed once created</td><td>Allowed</td><td><code>(3, 4)</code></td></tr><tr><td><b>Set</b></td><td><code>{ }</code></td><td>No</td><td>Items can't be changed, but you can add and remove</td><td>Not allowed</td><td><code>{1, 2, 3}</code></td></tr><tr><td><b>Dictionary</b></td><td><code>{key: value}</code></td><td>Yes (Python 3.7+)</td><td>Yes</td><td>Keys must be unique</td><td><code>{"speed": 5}</code></td></tr></tbody></table></div>
+<p class="note">Ordered means every item has a fixed position (an index). Changeable means you can edit, add or remove items after creating it. Keep this table in mind: we will fill in every cell of it during the lecture.</p>
+
+</section>
+<section id="warmup">
+  <div class="sec-head"><span class="num">02 · 8 min</span><h2>Python warm-up: four tools you already know</h2></div>
+<p>Before collections, a 5-minute refresh. You need a <b>variable</b>, an <b>if</b> decision, a <b>for</b> loop and a <b>function</b>.</p>
+<div class="cols"><div class="code"><pre class="py">
+battery = 42
+if battery &lt; 50:
+    print("Low battery!")
+else:
+    print("Battery OK")
+
+for step in range(3):
+    print("Step", step)
+
+def double(x):
+    return x * 2
+
+print(double(21))
+</pre></div><div class="out">Low battery!
+Step 0
+Step 1
+Step 2
+42</div></div>
+<p class="note">Indentation (the 4 spaces) matters in Python. Everything indented under <code>if</code>, <code>for</code> or <code>def</code> belongs to it. <code>range(3)</code> gives 0, 1, 2 and stops before 3.</p>
+<details class="reveal"><summary>Quick check: what does <code>for n in range(4): print(n * 10)</code> print?</summary><div class="body"><div class="out">0
+10
+20
+30</div><p class="note">range(4) gives 0, 1, 2, 3.</p></div></details>
+<details class="reveal"><summary>Quick check: what is <code>7 % 2</code>?</summary><div class="body"><div class="out">1</div><p class="note">% is the remainder after division. It is how we test even or odd: <code>n % 2 == 0</code>.</p></div></details>
+<details class="reveal"><summary>Quick check: what does a function do with <code>return</code>?</summary><div class="body"><div class="out">It hands a value back to whoever called the function.</div><p class="note">Without return, a function gives back None.</p></div></details>
+<div class="say"><b>In one sentence</b>Variables store one value, <code>if</code> chooses, <code>for</code> repeats and <code>def</code> packages steps. Collections store <b>many</b> values.</div>
+</section>
+<section id="lists">
+  <div class="sec-head"><span class="num">03 · 14 min</span><h2>Lists 1: the everyday collection, and how to read it</h2></div>
+<p>A list is Rover's sensor log or task queue. Create it with <b>square brackets</b> and separate items with commas.</p>
+<div class="cols"><div class="code"><pre class="py">
+parts = ["motor", "sensor", "wheel", "camera", "battery", "gripper"]
+print(parts)
+print(len(parts))
+print(type(parts))
+</pre></div><div class="out">['motor', 'sensor', 'wheel', 'camera', 'battery', 'gripper']
+6
+&lt;class 'list'&gt;</div></div>
+<div class="cols">
+    <div class="panel"><h3>Ordered</h3><p>Items have a fixed position. New items are added at the end.</p></div>
+    <div class="panel"><h3>Changeable</h3><p>You can change, add and remove items after the list is created.</p></div>
+    <div class="panel"><h3>Allows duplicates</h3><p>The same value may appear many times, each with its own index.</p></div>
+  </div>
+<p>Items can be of <b>any type</b>, and types can be mixed. Sensor readings are usually numbers:</p>
+<div class="cols"><div class="code"><pre class="py">
+readings = [23.5, 24.1, 22.8, 24.1]      # duplicates are fine
+profile = ["Rover", 3, True, 12.5]       # mixed types
+from_tuple = list(("a", "b", "c"))       # list() builds a list from anything
+print(readings)
+print(profile)
+print(from_tuple)
+</pre></div><div class="out">[23.5, 24.1, 22.8, 24.1]
+['Rover', 3, True, 12.5]
+['a', 'b', 'c']</div></div>
+<h3>Index and slice</h3>
+<p>Every item has an <b>index</b>. The first item is <code>[0]</code>, not <code>[1]</code>. Negative numbers count from the end: <code>[-1]</code> is the last item. A <b>slice</b> <code>[start:stop]</code> gives a new list from <code>start</code> up to, but <b>not including</b>, <code>stop</code>.</p>
+<div class="cols"><div class="code"><pre class="py">
+parts = ["motor", "sensor", "wheel", "camera", "battery", "gripper"]
+print(parts[0])
+print(parts[-1])
+print(parts[2:5])
+print(parts[:3])
+print(parts[-4:-1])
+print("camera" in parts)
+print(parts.index("wheel"))
+</pre></div><div class="out">motor
+gripper
+['wheel', 'camera', 'battery']
+['motor', 'sensor', 'wheel']
+['wheel', 'camera', 'battery']
+True
+2</div></div>
+<p>Now try it yourself. Pick a mode, type numbers, or click an example. Watch which cells light up. Index numbers are <span style='color:var(--blue)'>blue above</span> and negative ones <span style='color:var(--muted)'>grey below</span>.</p>
+<div class="panel">
+    <div class="tabs" id="ixTabs" role="group" aria-label="Index mode"></div>
+    <div class="cells" id="ixCells"></div>
+    <div class="form">
+      <label for="ixA">start / index<input id="ixA" inputmode="numeric" autocomplete="off"></label>
+      <label for="ixB" id="ixBgrp">stop<input id="ixB" inputmode="numeric" autocomplete="off"></label>
+    </div>
+    <div class="row" id="ixPresets"></div>
+    <div class="pycall" id="ixCall"></div>
+    <div class="out" id="ixOut"></div>
+  </div>
+
+<h3>Bonus: strings are sequences too</h3>
+<p>Everything you just learned about index and slice works on text, because a string is a row of characters:</p>
+<div class="cols"><div class="code"><pre class="py">
+name = "ROVER"
+print(name[0], name[-1])
+print(name[1:3])
+print(len(name))
+</pre></div><div class="out">R R
+OV
+5</div></div>
+<p class="note">Every list method, with a worked example you can check, is in the cheat tables in the next section.</p>
+<div class="say"><b>In one sentence</b>A list is an ordered row of boxes numbered from 0; use <code>[i]</code> for one box and <code>[a:b]</code> for a stretch that stops before b.</div>
+</section>
+<section id="change">
+  <div class="sec-head"><span class="num">04 · 14 min</span><h2>Lists 2: changing a list, like editing Rover's to-do list</h2></div>
+<p>Lists are changeable. Step through these eight lines and watch the list change after each one. The dashed box is another variable.</p>
+<div class="panel">
+    <div class="stepper">
+      <div class="code"><pre id="lsCode"></pre></div>
+      <div class="explain">
+        <div class="stepno" id="lsNo"></div>
+        <p id="lsText"></p>
+        <div>
+          <div class="note" style="font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em">THE LIST NOW (index · value)</div>
+          <div class="mem" id="lsMem"></div>
+        </div>
+        <div class="out" id="lsOut"></div>
+        <div class="ctrl">
+          <button class="btn ghost" id="lsPrev" type="button">← Back</button>
+          <button class="btn" id="lsNext" type="button">Next line →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<p>Replace a <b>range</b> of items, and add from <b>any iterable</b> (a list, tuple or set):</p>
+<div class="cols"><div class="code"><pre class="py">
+tasks = ["scan", "move", "grip", "return"]
+tasks[1:3] = ["turn", "lift"]
+print(tasks)
+tasks.extend(("beep", "sleep"))     # a tuple, but any iterable works
+print(tasks)
+</pre></div><div class="out">['scan', 'turn', 'lift', 'return']
+['scan', 'turn', 'lift', 'return', 'beep', 'sleep']</div></div>
+<p>There are four ways to remove things. Know the difference:</p>
+<div class="cols"><div class="code"><pre class="py">
+tasks = ["scan", "move", "scan", "grip"]
+tasks.remove("scan")     # by VALUE, first match only
+print(tasks)
+tasks.pop(1)             # by INDEX (and hands the item back)
+print(tasks)
+del tasks[0]             # by INDEX, with del
+print(tasks)
+tasks.clear()            # everything
+print(tasks)
+</pre></div><div class="out">['move', 'scan', 'grip']
+['move', 'grip']
+['grip']
+[]</div></div>
+
+<h3>Cheat tables: what every list operation does</h3>
+<p>Each row below was really run in Python, so the last three columns are exact. Read across: <b>what it does</b> in words, a tiny example, the list afterwards, what the operation <b>returns</b>, and whether it changes the original list.</p>
+<p class="note">Terms: <b>in place</b> means the same list is modified. <b>Returns</b> is the value you get back if you write <code>x = tasks.something()</code>. <code>None</code> means nothing useful comes back, so never write <code>tasks = tasks.sort()</code>.</p>
+<h3>Adding items</h3>
+<div class="tbl optable"><table><thead><tr><th>Operation</th><th>What it does</th><th>Try it: start, then the line</th><th>Collection afterwards</th><th>It returns</th><th>Changes the original?</th></tr></thead><tbody><tr><td><code>append(x)</code></td><td>Adds x as <b>one</b> new item at the <b>end</b>.</td><td><code>tasks = ["scan", "move"]<br>tasks.append("grip")</code></td><td><code>['scan', 'move', 'grip']</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>insert(i, x)</code></td><td>Puts x at index i. Items from i onward shift one place to the right.</td><td><code>tasks = ["scan", "move"]<br>tasks.insert(1, "beep")</code></td><td><code>['scan', 'beep', 'move']</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>extend(items)</code></td><td>Adds <b>each</b> item of a list, tuple or set to the end.</td><td><code>tasks = ["scan"]<br>tasks.extend(["move", "grip"])</code></td><td><code>['scan', 'move', 'grip']</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>append(a list)</code></td><td>Compare: appending a list adds it as <b>one</b> item, a list inside the list.</td><td><code>tasks = ["scan"]<br>tasks.append(["move", "grip"])</code></td><td><code>['scan', ['move', 'grip']]</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>a + b</code></td><td>Joins two lists into a <b>new</b> list. Neither original changes.</td><td><code>a = ["scan"]<br>a + ["move"]</code></td><td><code>['scan']</code></td><td><code>['scan', 'move']</code></td><td><span class="n">No</span></td></tr></tbody></table></div>
+<h3>Removing items (delete)</h3>
+<div class="tbl optable"><table><thead><tr><th>Operation</th><th>What it does</th><th>Try it: start, then the line</th><th>Collection afterwards</th><th>It returns</th><th>Changes the original?</th></tr></thead><tbody><tr><td><code>remove(x)</code></td><td>Deletes the <b>first</b> item whose <b>value</b> is x. Crashes (ValueError) if x is not in the list.</td><td><code>tasks = ["scan", "move", "scan"]<br>tasks.remove("scan")</code></td><td><code>['move', 'scan']</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>pop()</code></td><td>Deletes the <b>last</b> item and <b>returns</b> it.</td><td><code>tasks = ["scan", "move", "grip"]<br>tasks.pop()</code></td><td><code>['scan', 'move']</code></td><td><code>'grip'</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>pop(i)</code></td><td>Deletes the item at <b>index</b> i and returns it.</td><td><code>tasks = ["scan", "move", "grip"]<br>tasks.pop(0)</code></td><td><code>['move', 'grip']</code></td><td><code>'scan'</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>del x[i]</code></td><td>Deletes the item at index i. It is a statement, so it returns nothing.</td><td><code>tasks = ["scan", "move", "grip"]<br>del tasks[0]</code></td><td><code>['move', 'grip']</code></td><td><code>nothing (a statement)</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>del x[a:b]</code></td><td>Deletes a whole slice, from a up to but not including b.</td><td><code>nums = [10, 20, 30, 40]<br>del nums[1:3]</code></td><td><code>[10, 40]</code></td><td><code>nothing (a statement)</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>clear()</code></td><td>Deletes <b>all</b> items. The list still exists, now empty.</td><td><code>tasks = ["scan", "move", "grip"]<br>tasks.clear()</code></td><td><code>[]</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr></tbody></table></div>
+<p><b>Which delete?</b> Know the <b>value</b> but not the position: <code>remove(x)</code>. Know the <b>position</b>: <code>pop(i)</code> if you also want the item back, <code>del x[i]</code> if you do not. Want everything gone: <code>clear()</code>.</p>
+<h3>Replacing and reordering</h3>
+<div class="tbl optable"><table><thead><tr><th>Operation</th><th>What it does</th><th>Try it: start, then the line</th><th>Collection afterwards</th><th>It returns</th><th>Changes the original?</th></tr></thead><tbody><tr><td><code>x[i] = v</code></td><td><b>Replaces</b> the item at index i with v.</td><td><code>tasks = ["scan", "move", "grip"]<br>tasks[1] = "turn"</code></td><td><code>['scan', 'turn', 'grip']</code></td><td><code>nothing (a statement)</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>x[a:b] = [...]</code></td><td>Replaces a slice with new items. The list can grow or shrink.</td><td><code>nums = [10, 20, 30, 40]<br>nums[1:3] = [99]</code></td><td><code>[10, 99, 40]</code></td><td><code>nothing (a statement)</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>sort()</code></td><td>Sorts <b>this</b> list in place, smallest first. Returns None.</td><td><code>nums = [30, 10, 20]<br>nums.sort()</code></td><td><code>[10, 20, 30]</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>sort(reverse=True)</code></td><td>Sorts in place, largest first.</td><td><code>nums = [30, 10, 20]<br>nums.sort(reverse=True)</code></td><td><code>[30, 20, 10]</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>sorted(x)</code></td><td>Returns a <b>new</b> sorted list. The original is untouched.</td><td><code>nums = [30, 10, 20]<br>sorted(nums)</code></td><td><code>[30, 10, 20]</code></td><td><code>[10, 20, 30]</code></td><td><span class="n">No</span></td></tr><tr><td><code>reverse()</code></td><td>Flips the order in place. Not a sort, just backwards.</td><td><code>nums = [30, 10, 20]<br>nums.reverse()</code></td><td><code>[20, 10, 30]</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr></tbody></table></div>
+<h3>Looking things up (these never change the list)</h3>
+<div class="tbl optable"><table><thead><tr><th>Operation</th><th>What it does</th><th>Try it: start, then the line</th><th>Collection afterwards</th><th>It returns</th><th>Changes the original?</th></tr></thead><tbody><tr><td><code>len(x)</code></td><td>How many items the list has.</td><td><code>tasks = ["scan", "move", "grip"]<br>len(tasks)</code></td><td><code>['scan', 'move', 'grip']</code></td><td><code>3</code></td><td><span class="n">No</span></td></tr><tr><td><code>x[i]</code></td><td>Reads the item at index i. Negative counts from the end.</td><td><code>tasks = ["scan", "move", "grip"]<br>tasks[-1]</code></td><td><code>['scan', 'move', 'grip']</code></td><td><code>'grip'</code></td><td><span class="n">No</span></td></tr><tr><td><code>x[a:b]</code></td><td>Reads a slice as a new list.</td><td><code>nums = [10, 20, 30, 40]<br>nums[1:3]</code></td><td><code>[10, 20, 30, 40]</code></td><td><code>[20, 30]</code></td><td><span class="n">No</span></td></tr><tr><td><code>item in x</code></td><td>True if the value is somewhere in the list.</td><td><code>tasks = ["scan", "move", "grip"]<br>"move" in tasks</code></td><td><code>['scan', 'move', 'grip']</code></td><td><code>True</code></td><td><span class="n">No</span></td></tr><tr><td><code>index(x)</code></td><td>Position of the first x. Crashes if x is missing.</td><td><code>tasks = ["scan", "move", "grip"]<br>tasks.index("grip")</code></td><td><code>['scan', 'move', 'grip']</code></td><td><code>2</code></td><td><span class="n">No</span></td></tr><tr><td><code>count(x)</code></td><td>How many times x appears.</td><td><code>tasks = ["scan", "move", "scan"]<br>tasks.count("scan")</code></td><td><code>['scan', 'move', 'scan']</code></td><td><code>2</code></td><td><span class="n">No</span></td></tr><tr><td><code>copy()</code></td><td>A new, separate list with the same items.</td><td><code>tasks = ["scan", "move", "grip"]<br>tasks.copy()</code></td><td><code>['scan', 'move', 'grip']</code></td><td><code>['scan', 'move', 'grip']</code></td><td><span class="n">No</span></td></tr><tr><td><code>sum(x)</code></td><td>Adds up a list of numbers (also min(x) and max(x)).</td><td><code>nums = [30, 10, 20]<br>sum(nums)</code></td><td><code>[30, 10, 20]</code></td><td><code>60</code></td><td><span class="n">No</span></td></tr></tbody></table></div>
+<div class="say"><b>In one sentence</b><code>append</code> and <code>insert</code> add, <code>remove</code> deletes by value, <code>pop</code> and <code>del</code> delete by position, and assigning to <code>[i]</code> replaces.</div>
+</section>
+<section id="loops">
+  <div class="sec-head"><span class="num">05 · 10 min</span><h2>Lists 3: loops, enumerate, zip and comprehensions</h2></div>
+<h3>Looping through a list</h3>
+<div class="cols"><div class="code"><pre class="py">
+readings = [23.5, 24.1, 22.8, 25.0]
+for r in readings:
+    print("Sensor says", r)
+</pre></div><div class="out">Sensor says 23.5
+Sensor says 24.1
+Sensor says 22.8
+Sensor says 25.0</div></div>
+<p>If you also need the position, use <code>enumerate()</code>. It hands you the index and the item together. (The older way, <code>range(len(...))</code>, does the same with more typing.)</p>
+<div class="cols"><div class="code"><pre class="py">
+parts = ["motor", "sensor", "wheel"]
+for i, part in enumerate(parts):
+    print(i, part)
+
+for i, part in enumerate(parts, start=1):    # start counting at 1
+    print("Part", i, "is", part)
+</pre></div><div class="out">0 motor
+1 sensor
+2 wheel
+Part 1 is motor
+Part 2 is sensor
+Part 3 is wheel</div></div>
+<p>To walk through <b>two lists side by side</b>, use <code>zip()</code>:</p>
+<div class="cols"><div class="code"><pre class="py">
+names = ["Rover", "Scout", "Atlas"]
+batteries = [80, 45, 92]
+for name, level in zip(names, batteries):
+    print(name, "has", level, "% battery")
+</pre></div><div class="out">Rover has 80 % battery
+Scout has 45 % battery
+Atlas has 92 % battery</div></div>
+<p>A <code>while</code> loop works too. You manage the counter yourself:</p>
+<div class="cols"><div class="code"><pre class="py">
+tasks = ["scan", "move", "grip"]
+i = 0
+while i &lt; len(tasks):
+    print("Doing", tasks[i])
+    i = i + 1
+</pre></div><div class="out">Doing scan
+Doing move
+Doing grip</div></div>
+<h3>Built-in helpers: len, min, max, sum</h3>
+<div class="cols"><div class="code"><pre class="py">
+readings = [23.5, 24.1, 22.8, 25.0, 23.9]
+print("Count:", len(readings))
+print("Lowest:", min(readings))
+print("Highest:", max(readings))
+print("Average:", sum(readings) / len(readings))
+</pre></div><div class="out">Count: 5
+Lowest: 22.8
+Highest: 25.0
+Average: 23.86</div></div>
+<h3>List comprehension: a loop in one line</h3>
+<p>Syntax: <code>newlist = [expression for item in iterable if condition]</code>. The <code>if</code> part is optional. Read it aloud: "give me <i>expression</i> for each <i>item</i> in the list, but only if <i>condition</i>".</p>
+<div class="cols"><div class="code"><pre class="py">
+temps = [23.5, 41.0, 24.1, 39.8]
+hot = [t for t in temps if t &gt; 30]
+print(hot)
+fahrenheit = [round(c * 9 / 5 + 32, 1) for c in temps]
+print(fahrenheit)
+print([n * n for n in range(5)])
+</pre></div><div class="out">[41.0, 39.8]
+[74.3, 105.8, 75.4, 103.6]
+[0, 1, 4, 9, 16]</div></div>
+<details class="reveal"><summary>Quick check: what does <code>[x for x in [1, 2, 3, 4] if x % 2 == 0]</code> give?</summary><div class="body"><div class="out">[2, 4]</div><p class="note">Only even numbers pass the condition.</p></div></details>
+<div class="say"><b>In one sentence</b><code>for</code> visits each item, <code>enumerate</code> adds the position, <code>zip</code> pairs two lists, and a comprehension builds a new list in one line.</div>
+</section>
+<section id="sortcopy">
+  <div class="sec-head"><span class="num">06 · 10 min</span><h2>Lists 4: sorting, and the copy trap</h2></div>
+<h3>Sorting</h3>
+<div class="cols"><div class="code"><pre class="py">
+dist = [100, 50, 65, 82, 23]
+dist.sort()
+print(dist)
+dist.sort(reverse=True)
+print(dist)
+
+names = ["motor", "Sensor", "Wheel", "camera"]
+names.sort()
+print(names)                  # capital letters come first!
+names.sort(key=str.lower)
+print(names)
+names.reverse()
+print(names)
+</pre></div><div class="out">[23, 50, 65, 82, 100]
+[100, 82, 65, 50, 23]
+['Sensor', 'Wheel', 'camera', 'motor']
+['camera', 'motor', 'Sensor', 'Wheel']
+['Wheel', 'Sensor', 'motor', 'camera']</div></div>
+<p>Give <code>sort()</code> your own rule with <code>key=</code>. The key function is called on each item and the list is ordered by its answers. Example: which distance readings are closest to the 50 cm target?</p>
+<div class="cols"><div class="code"><pre class="py">
+def gap_from_50(n):
+    return abs(n - 50)
+
+dist = [100, 50, 65, 82, 23]
+dist.sort(key=gap_from_50)
+print(dist)
+</pre></div><div class="out">[50, 65, 23, 82, 100]</div></div>
+<div class="ask trap"><b>Common trap</b><code>sort()</code> changes the list and <b>returns None</b>. <code>sorted()</code> leaves the list alone and returns a new sorted list.</div>
+<div class="cols"><div class="code"><pre class="py">
+nums = [3, 1, 2]
+print(sorted(nums))
+print(nums)
+result = nums.sort()
+print(result)
+print(nums)
+</pre></div><div class="out">[1, 2, 3]
+[3, 1, 2]
+None
+[1, 2, 3]</div></div>
+<h3>Copying: the trap</h3>
+<p><code>b = a</code> does <b>not</b> make a copy. It gives the same list a second name. Try it:</p>
+<div class="panel">
+    <div class="tabs" id="alTabs" role="group" aria-label="Copy mode"></div>
+    <div class="code"><pre id="alCode"></pre></div>
+    <div id="alView"></div>
+    <div class="ctrl"><button class="btn" id="alRun" type="button">Run b.append(4)</button><button class="btn ghost" id="alReset" type="button">Reset</button></div>
+  </div>
+<p>Three ways to make a real copy:</p>
+<div class="cols"><div class="code"><pre class="py">
+a = [1, 2, 3]
+b = a                # NOT a copy: same list, two names
+c = a.copy()         # a real copy
+d = list(a)          # also a copy
+e = a[:]             # also a copy (slice of everything)
+a.append(4)
+print(b)
+print(c, d, e)
+</pre></div><div class="out">[1, 2, 3, 4]
+[1, 2, 3] [1, 2, 3] [1, 2, 3]</div></div>
+<div class="say"><b>In one sentence</b><code>sort()</code> edits and returns None, <code>sorted()</code> returns a new list, and <code>b = a</code> is a second name, not a copy.</div>
+</section>
+<section id="grid">
+  <div class="sec-head"><span class="num">07 · 10 min</span><h2>Lists 5: lists inside lists, the robot's map</h2></div>
+<p>A robot map is a <b>grid</b>. In Python a grid is a <b>list of lists</b>: each inner list is one row. <code>0</code> means free floor and <code>1</code> means an obstacle.</p>
+<div class="cols"><div class="code"><pre class="py">
+grid = [
+    [0, 0, 1, 0, 0, 0],
+    [0, 1, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0],
+]
+print(grid[0])          # a whole row
+print(grid[0][2])       # row 0, column 2
+print(len(grid), len(grid[0]))   # rows, columns
+</pre></div><div class="out">[0, 0, 1, 0, 0, 0]
+1
+4 6</div></div>
+<p class="note">Read <code>grid[row][col]</code> from left to right: first pick the row (a list), then pick the item inside it.</p>
+<p>Walking over every cell takes a loop inside a loop:</p>
+<div class="cols"><div class="code"><pre class="py">
+grid = [
+    [0, 0, 1, 0, 0, 0],
+    [0, 1, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0],
+]
+obstacles = []
+for r in range(len(grid)):
+    for c in range(len(grid[r])):
+        if grid[r][c] == 1:
+            obstacles.append((r, c))
+print(obstacles)
+print(len(obstacles), "obstacles")
+</pre></div><div class="out">[(0, 2), (1, 1), (1, 4), (3, 0)]
+4 obstacles</div></div>
+<p>Click cells below to toggle obstacles. The Python list of lists updates live, and the code reads the cell you last clicked.</p>
+<div class="panel">
+    <div class="rgrid" id="gdCells" role="group" aria-label="Grid builder"></div>
+    <div class="code"><pre id="gdCode"></pre></div>
+    <div class="out" id="gdOut"></div>
+  </div>
+<h3>Building a blank grid: another copy trap</h3>
+<p>To make a 2-row, 3-column grid of zeros, the obvious line <code>[[0] * 3] * 2</code> is a trap. Predict what happens, then compare with the safe version:</p>
+<div class="cols"><div class="code"><pre class="py">
+bad = [[0] * 3] * 2           # the SAME row twice
+bad[0][0] = 9
+print(bad)
+
+good = [[0] * 3 for _ in range(2)]   # a NEW row each time
+good[0][0] = 9
+print(good)
+</pre></div><div class="out">[[9, 0, 0], [9, 0, 0]]
+[[9, 0, 0], [0, 0, 0]]</div></div>
+<div class="say"><b>In one sentence</b>A grid is a list of rows, <code>grid[row][col]</code> reads one cell, and you build a blank grid with a comprehension, not with <code>* rows</code>.</div>
+</section>
+<section id="check1">
+  <div class="sec-head"><span class="num">08 · 8 min</span><h2>Checkpoint 1: can you read lists like Python does?</h2></div>
+<p>Write your answer on paper first, then reveal. Work in pairs, 2 minutes each.</p>
+<div class="ex"><div class="panel"><h3>P1 · Negative index and slice</h3><div class="code"><pre class="py">
+parts = ["motor", "sensor", "wheel"]
+print(parts[-1])
+print(parts[0:2])
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">wheel
+['motor', 'sensor']</div></div></details></div><div class="panel"><h3>P2 · Robot task queue</h3><div class="code"><pre class="py">
+queue = ["scan", "turn"]
+queue.append("grip")
+queue.insert(0, "wake")
+queue.remove("turn")
+print(queue)
+print(len(queue))
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">['wake', 'scan', 'grip']
+3</div></div></details></div><div class="panel"><h3>P3 · Alias or copy?</h3><div class="code"><pre class="py">
+a = [1, 2, 3]
+b = a
+c = a.copy()
+b.append(4)
+c.append(5)
+print(a)
+print(c)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">[1, 2, 3, 4]
+[1, 2, 3, 5]</div><p class="note"><code>b</code> is the same list as <code>a</code>. <code>c</code> is a separate copy.</p></div></details></div><div class="panel"><h3>P4 · The silent None</h3><div class="code"><pre class="py">
+nums = [3, 1, 2]
+nums = nums.sort()
+print(nums)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">None</div><p class="note"><code>sort()</code> returns None, and we saved that None over the list. No crash, but the list is gone. Just write <code>nums.sort()</code>.</p></div></details></div><div class="panel"><h3>P5 · Comprehension with a condition</h3><div class="code"><pre class="py">
+squares = [x * x for x in range(6) if x % 2 == 0]
+print(squares)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">[0, 4, 16]</div><p class="note">Only 0, 2 and 4 pass the condition.</p></div></details></div><div class="panel"><h3>B1 · Removing what is not there</h3><div class="code"><pre class="py">
+parts = ["motor", "sensor"]
+parts.remove("laser")
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out err">ValueError: list.remove(x): x not in list</div><p>The list has no "laser". Check first with <code>if "laser" in parts:</code>.</p></div></details></div><div class="panel"><h3>B2 · One step too far</h3><div class="code"><pre class="py">
+parts = ["motor", "sensor", "wheel"]
+for i in range(len(parts) + 1):
+    print(parts[i])
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out err">IndexError: list index out of range</div><p><code>range(len(parts))</code> already covers every index (0, 1, 2). The extra <code>+ 1</code> asks for index 3, which does not exist.</p></div></details></div></div>
+</section>
+<div class="panel" style="margin-top:40px"><h3>Break: 10 minutes</h3><p>Stretch, drink water. When we come back: tuples, sets and dictionaries, then we drive Rover.</p></div><section id="tuples">
+  <div class="sec-head"><span class="num">09 · 12 min</span><h2>Tuples: coordinates that stay put</h2></div>
+<p>A tuple uses <b>round brackets</b>. It is ordered and allows duplicates, but once created it <b>cannot be changed</b>. Use it for data that must stay fixed: a position, an RGB colour, a compass direction.</p>
+<div class="cols"><div class="code"><pre class="py">
+home = (0, 0)
+led_colour = (255, 128, 0)
+headings = ("N", "E", "S", "W", "N")
+print(home[0], led_colour[-1])
+print(len(headings), headings.count("N"), headings.index("S"))
+</pre></div><div class="out">0 0
+5 2 2</div></div>
+<p>Trying to change one is an error. That is the whole point of a tuple, it protects data from accidents:</p>
+<div class="cols"><div class="code"><pre class="py">
+home = (0, 0)
+home[0] = 10
+</pre></div><div class="out err">TypeError: 'tuple' object does not support item assignment</div></div>
+<div class="ask trap"><b>Common trap</b>The comma makes the tuple, not the brackets. <code>("apple")</code> is just a string.</div>
+<div class="cols"><div class="code"><pre class="py">
+a = ("apple")
+b = ("apple",)
+print(type(a))
+print(type(b))
+</pre></div><div class="out">&lt;class 'str'&gt;
+&lt;class 'tuple'&gt;</div></div>
+<h3>Unpacking: take a tuple apart</h3>
+<div class="cols"><div class="code"><pre class="py">
+position = (3, 4)
+x, y = position
+print("x is", x, "and y is", y)
+
+a, b = 3, 7
+a, b = b, a             # swap in one line!
+print(a, b)
+
+first, *rest = ("N", "E", "S", "W")     # * collects the leftovers into a list
+print(first)
+print(rest)
+
+top, *middle, last = (1, 2, 3, 4, 5)
+print(middle)
+</pre></div><div class="out">x is 3 and y is 4
+7 3
+N
+['E', 'S', 'W']
+[2, 3, 4]</div></div>
+<h3>A function can return several values: really a tuple</h3>
+<div class="cols"><div class="code"><pre class="py">
+def min_max(values):
+    return min(values), max(values)
+
+low, high = min_max([23.5, 24.1, 22.8, 25.0])
+print(low, high)
+print(type(min_max([1, 2])))
+</pre></div><div class="out">22.8 25.0
+&lt;class 'tuple'&gt;</div></div>
+<h3>A list of tuples: waypoints</h3>
+<div class="cols"><div class="code"><pre class="py">
+waypoints = [(0, 0), (2, 3), (5, 1)]
+for x, y in waypoints:
+    print("Go to", x, y)
+waypoints.append((6, 6))      # the LIST changes, the tuples inside do not
+print(len(waypoints))
+</pre></div><div class="out">Go to 0 0
+Go to 2 3
+Go to 5 1
+4</div></div>
+<p>You can still <b>join</b> and <b>repeat</b> tuples. They make new tuples and leave the originals alone:</p>
+<div class="cols"><div class="code"><pre class="py">
+t1 = ("a", "b")
+t2 = (1, 2)
+print(t1 + t2)
+print(t1 * 3)
+</pre></div><div class="out">('a', 'b', 1, 2)
+('a', 'b', 'a', 'b', 'a', 'b')</div></div>
+<p class="note">A tuple has only two methods: <code>count()</code> and <code>index()</code>.</p>
+
+<h3>Cheat table: what every tuple operation does</h3>
+<p>A tuple has no append, remove, sort or insert. Everything below only <b>reads</b> or builds a <b>new</b> tuple, which is why the last column is always No.</p>
+<div class="tbl optable"><table><thead><tr><th>Operation</th><th>What it does</th><th>Try it: start, then the line</th><th>Collection afterwards</th><th>It returns</th><th>Changes the original?</th></tr></thead><tbody><tr><td><code>t[i]</code></td><td>Reads the item at index i. Negative counts from the end.</td><td><code>point = (3, 4, 5)<br>point[-1]</code></td><td><code>(3, 4, 5)</code></td><td><code>5</code></td><td><span class="n">No</span></td></tr><tr><td><code>t[a:b]</code></td><td>Reads a slice as a new tuple.</td><td><code>point = (3, 4, 5)<br>point[0:2]</code></td><td><code>(3, 4, 5)</code></td><td><code>(3, 4)</code></td><td><span class="n">No</span></td></tr><tr><td><code>len(t)</code></td><td>How many items.</td><td><code>point = (3, 4, 5)<br>len(point)</code></td><td><code>(3, 4, 5)</code></td><td><code>3</code></td><td><span class="n">No</span></td></tr><tr><td><code>item in t</code></td><td>True if the value is in the tuple.</td><td><code>point = (3, 4, 5)<br>4 in point</code></td><td><code>(3, 4, 5)</code></td><td><code>True</code></td><td><span class="n">No</span></td></tr><tr><td><code>count(x)</code></td><td>How many times x appears. One of only two tuple methods.</td><td><code>turns = ("L", "R", "L")<br>turns.count("L")</code></td><td><code>('L', 'R', 'L')</code></td><td><code>2</code></td><td><span class="n">No</span></td></tr><tr><td><code>index(x)</code></td><td>Position of the first x. The other tuple method.</td><td><code>turns = ("L", "R", "L")<br>turns.index("R")</code></td><td><code>('L', 'R', 'L')</code></td><td><code>1</code></td><td><span class="n">No</span></td></tr><tr><td><code>t1 + t2</code></td><td>Joins into a <b>new</b> tuple. The originals stay as they are.</td><td><code>a = (1, 2)<br>a + (3,)</code></td><td><code>(1, 2)</code></td><td><code>(1, 2, 3)</code></td><td><span class="n">No</span></td></tr><tr><td><code>t * n</code></td><td>Repeats the tuple n times into a new tuple.</td><td><code>a = (1, 2)<br>a * 2</code></td><td><code>(1, 2)</code></td><td><code>(1, 2, 1, 2)</code></td><td><span class="n">No</span></td></tr></tbody></table></div>
+<div class="say"><b>In one sentence</b>A tuple is a list that is locked, perfect for positions, and unpacking (<code>x, y = point</code>) is how you read it.</div>
+</section>
+<section id="sets">
+  <div class="sec-head"><span class="num">10 · 14 min</span><h2>Sets: have I been here before?</h2></div>
+<p>A set uses <b>curly brackets</b>. It has <b>no duplicates</b> and <b>no order</b>, so there are no indexes: <code>s[0]</code> does not work. Python may print items in a different order each run, so we use <code>sorted()</code> below to get a steady result.</p>
+<div class="cols"><div class="code"><pre class="py">
+ids = [3, 1, 3, 2, 1, 4]       # obstacle IDs, some seen twice
+unique = set(ids)
+print(len(ids), len(unique))
+print(sorted(unique))
+print(3 in unique)
+</pre></div><div class="out">6 4
+[1, 2, 3, 4]
+True</div></div>
+<div class="ask trap"><b>Common trap</b><code>x = {}</code> makes an empty <b>dictionary</b>, not a set. For an empty set write <code>x = set()</code>.</div>
+<h3>Adding and removing</h3>
+<div class="cols"><div class="code"><pre class="py">
+visited = {(0, 0), (0, 1)}
+visited.add((0, 2))
+visited.add((0, 1))              # already there: nothing happens
+visited.update([(1, 2), (2, 2)]) # any iterable: list, tuple, set
+print(sorted(visited))
+visited.remove((0, 0))
+visited.discard((9, 9))          # not there? no error
+print(len(visited))
+</pre></div><div class="out">[(0, 0), (0, 1), (0, 2), (1, 2), (2, 2)]
+4</div></div>
+<p><code>remove()</code> and <code>discard()</code> differ only when the item is missing. <code>pop()</code> removes an arbitrary item, since sets have no order.</p>
+<div class="cols"><div class="code"><pre class="py">
+visited = {(0, 0), (0, 1)}
+visited.remove((9, 9))
+</pre></div><div class="out err">KeyError: (9, 9)</div></div>
+<h3>Set operations: two robots, one floor</h3>
+<p>Robot 1 and Robot 2 each cleaned some tiles. Set maths answers the questions instantly:</p>
+<div class="cols"><div class="code"><pre class="py">
+robot1 = {(0, 0), (0, 1), (0, 2), (1, 2)}
+robot2 = {(1, 2), (2, 2), (2, 3)}
+print(sorted(robot1 &amp; robot2))   # intersection: cleaned by BOTH
+print(sorted(robot1 | robot2))   # union: cleaned by EITHER
+print(sorted(robot1 - robot2))   # difference: only robot 1
+print(sorted(robot1 ^ robot2))   # symmetric difference: exactly one of them
+print((1, 2) in robot1)
+</pre></div><div class="out">[(1, 2)]
+[(0, 0), (0, 1), (0, 2), (1, 2), (2, 2), (2, 3)]
+[(0, 0), (0, 1), (0, 2)]
+[(0, 0), (0, 1), (0, 2), (2, 2), (2, 3)]
+True</div></div>
+<p>Change the two sets below and click an operation. The highlighted regions are what the operation keeps.</p>
+<div class="panel">
+    <div class="form">
+      <label for="seA">set A (comma separated)<input id="seA" value="1, 2, 3, 4, 5" autocomplete="off"></label>
+      <label for="seB">set B<input id="seB" value="4, 5, 6, 7" autocomplete="off"></label>
+    </div>
+    <div class="tabs" id="seOps" role="group" aria-label="Set operation"></div>
+    <div class="venn" id="seVenn"></div>
+    <div class="pycall" id="seCode"></div>
+    <div class="out" id="seOut"></div>
+    <p class="note">Items are shown sorted here. Real Python sets are unordered.</p>
+  </div>
+<h3>Checking requirements</h3>
+<div class="cols"><div class="code"><pre class="py">
+required = {"camera", "lidar"}
+installed = {"camera", "imu", "gps"}
+print(required - installed)              # what is missing?
+print(required.issubset(installed))      # do we have everything?
+print(required.isdisjoint(installed))    # nothing in common at all?
+print(sorted(installed - required))      # extras
+</pre></div><div class="out">{'lidar'}
+False
+False
+['gps', 'imu']</div></div>
+<p class="note"><b>frozenset</b> is an unchangeable set: <code>frozenset({"camera", "lidar"})</code>. It supports the same operations (<code>|</code>, <code>&amp;</code>, <code>-</code>, <code>^</code>) but you cannot <code>add()</code> or <code>remove()</code>.</p>
+<h3>Cheat tables: what every set operation does</h3>
+<h3>Adding and removing</h3>
+<div class="tbl optable"><table><thead><tr><th>Operation</th><th>What it does</th><th>Try it: start, then the line</th><th>Collection afterwards</th><th>It returns</th><th>Changes the original?</th></tr></thead><tbody><tr><td><code>add(x)</code></td><td>Adds one item.</td><td><code>s = {1, 2, 3}<br>s.add(4)</code></td><td><code>{1, 2, 3, 4}</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>add(x) again</code></td><td>Adding something already inside does nothing. No error, no duplicate.</td><td><code>s = {1, 2, 3}<br>s.add(2)</code></td><td><code>{1, 2, 3}</code></td><td><code>None</code></td><td><span class="n">No</span></td></tr><tr><td><code>update(items)</code></td><td>Adds every item of a list, tuple or set. Duplicates are ignored.</td><td><code>s = {1, 2, 3}<br>s.update([3, 4, 5])</code></td><td><code>{1, 2, 3, 4, 5}</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>remove(x)</code></td><td>Deletes x. Crashes (KeyError) if x is not there.</td><td><code>s = {1, 2, 3}<br>s.remove(2)</code></td><td><code>{1, 3}</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>discard(x)</code></td><td>Deletes x if it is there. No error if it is missing.</td><td><code>s = {1, 2, 3}<br>s.discard(9)</code></td><td><code>{1, 2, 3}</code></td><td><code>None</code></td><td><span class="n">No</span></td></tr><tr><td><code>pop()</code></td><td>Removes and returns an <b>arbitrary</b> item (sets have no order, so do not count on which).</td><td><code>s = {5}<br>s.pop()</code></td><td><code>set()</code></td><td><code>5</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>clear()</code></td><td>Deletes all items.</td><td><code>s = {1, 2, 3}<br>s.clear()</code></td><td><code>set()</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr></tbody></table></div>
+<h3>Set maths and questions</h3>
+<div class="tbl optable"><table><thead><tr><th>Operation</th><th>What it does</th><th>Try it: start, then the line</th><th>Collection afterwards</th><th>It returns</th><th>Changes the original?</th></tr></thead><tbody><tr><td><code>A | B</code></td><td><b>Union</b>: everything in either set. Same as <code>A.union(B)</code>.</td><td><code>A = {1, 2, 3, 4}; B = {3, 4, 5, 6}<br>A | B</code></td><td><code>{1, 2, 3, 4}</code></td><td><code>{1, 2, 3, 4, 5, 6}</code></td><td><span class="n">No</span></td></tr><tr><td><code>A &amp; B</code></td><td><b>Intersection</b>: only what is in both. Same as <code>A.intersection(B)</code>.</td><td><code>A = {1, 2, 3, 4}; B = {3, 4, 5, 6}<br>A &amp; B</code></td><td><code>{1, 2, 3, 4}</code></td><td><code>{3, 4}</code></td><td><span class="n">No</span></td></tr><tr><td><code>A - B</code></td><td><b>Difference</b>: in A but not in B. Same as <code>A.difference(B)</code>.</td><td><code>A = {1, 2, 3, 4}; B = {3, 4, 5, 6}<br>A - B</code></td><td><code>{1, 2, 3, 4}</code></td><td><code>{1, 2}</code></td><td><span class="n">No</span></td></tr><tr><td><code>A ^ B</code></td><td><b>Symmetric difference</b>: in exactly one of them. Same as <code>A.symmetric_difference(B)</code>.</td><td><code>A = {1, 2, 3, 4}; B = {3, 4, 5, 6}<br>A ^ B</code></td><td><code>{1, 2, 3, 4}</code></td><td><code>{1, 2, 5, 6}</code></td><td><span class="n">No</span></td></tr><tr><td><code>A.issubset(B)</code></td><td>True if every item of A is also in B (shortcut <code>A &lt;= B</code>).</td><td><code>A = {1, 2}; B = {1, 2, 3}<br>A.issubset(B)</code></td><td><code>{1, 2}</code></td><td><code>True</code></td><td><span class="n">No</span></td></tr><tr><td><code>A.issuperset(B)</code></td><td>True if A contains every item of B (shortcut <code>A &gt;= B</code>).</td><td><code>A = {1, 2, 3}; B = {1, 2}<br>A.issuperset(B)</code></td><td><code>{1, 2, 3}</code></td><td><code>True</code></td><td><span class="n">No</span></td></tr><tr><td><code>A.isdisjoint(B)</code></td><td>True if the sets share nothing.</td><td><code>A = {1, 2}; B = {3, 4}<br>A.isdisjoint(B)</code></td><td><code>{1, 2}</code></td><td><code>True</code></td><td><span class="n">No</span></td></tr><tr><td><code>A |= B</code></td><td>In-place union: A itself grows. (Also <code>&amp;=</code>, <code>-=</code>, <code>^=</code>.)</td><td><code>A = {1, 2}; B = {2, 3}<br>A |= B</code></td><td><code>{1, 2, 3}</code></td><td><code>nothing (a statement)</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>x in s</code></td><td>True if x is in the set, answered very quickly. (<code>len(s)</code> counts the items.)</td><td><code>s = {1, 2, 3}<br>2 in s</code></td><td><code>{1, 2, 3}</code></td><td><code>True</code></td><td><span class="n">No</span></td></tr></tbody></table></div>
+<div class="say"><b>In one sentence</b>A set is a bag where each thing can be inside only once: great for "have I seen this?" and for comparing groups with <code>|</code>, <code>&amp;</code>, <code>-</code>, <code>^</code>.</div>
+</section>
+<section id="dicts">
+  <div class="sec-head"><span class="num">11 · 14 min</span><h2>Dictionaries: Rover's spec sheet</h2></div>
+<p>A dictionary stores <b>key: value</b> pairs in curly brackets. You find a value by its key, not by a position. Keys are unique, and since Python 3.7 a dictionary remembers the order you added things.</p>
+<div class="cols"><div class="code"><pre class="py">
+robot = {"name": "Rover", "battery": 80, "speed": 5}
+print(robot["name"])
+print(robot.get("battery"))
+print(robot.get("camera"))
+print(robot.get("camera", "not installed"))
+print(len(robot))
+print("speed" in robot)
+</pre></div><div class="out">Rover
+80
+None
+not installed
+3
+True</div></div>
+<p><code>robot["camera"]</code> would crash with a <code>KeyError</code> because the key is missing. <code>get()</code> is the safe way to ask. And <code>in</code> checks the <b>keys</b>.</p>
+<div class="cols"><div class="code"><pre class="py">
+robot = {"name": "Rover", "battery": 80, "speed": 5}
+print(robot.keys())
+print(robot.values())
+print(robot.items())
+</pre></div><div class="out">dict_keys(['name', 'battery', 'speed'])
+dict_values(['Rover', 80, 5])
+dict_items([('name', 'Rover'), ('battery', 80), ('speed', 5)])</div></div>
+<p class="note">These three give <em>view</em> objects that stay up to date with the dictionary. Wrap them in <code>list()</code> if you want a plain list.</p>
+<h3>Change, add, remove</h3>
+<div class="cols"><div class="code"><pre class="py">
+robot = {"name": "Rover", "battery": 80, "speed": 5}
+robot["battery"] = 75                        # key exists: changes it
+robot["mode"] = "patrol"                     # new key: adds it
+robot.update({"speed": 7, "camera": True})   # several at once
+print(robot)
+robot.pop("mode")                            # remove by key
+del robot["camera"]
+print(robot)
+</pre></div><div class="out">{'name': 'Rover', 'battery': 75, 'speed': 7, 'mode': 'patrol', 'camera': True}
+{'name': 'Rover', 'battery': 75, 'speed': 7}</div></div>
+<p>Duplicate keys do not exist: the <b>last</b> value wins.</p>
+<div class="cols"><div class="code"><pre class="py">
+d = {"a": 1, "b": 2, "a": 3}
+print(d)
+</pre></div><div class="out">{'a': 3, 'b': 2}</div></div>
+<h3>Looping</h3>
+<div class="cols"><div class="code"><pre class="py">
+robot = {"name": "Rover", "battery": 80}
+for key in robot:                  # loops over the keys
+    print(key)
+for key, value in robot.items():   # keys and values together
+    print(key, "=", value)
+</pre></div><div class="out">name
+battery
+name = Rover
+battery = 80</div></div>
+<h3>The counting pattern: the most useful dictionary trick</h3>
+<p>Rover logs events. How many of each? The key is the event, the value is the count:</p>
+<div class="cols"><div class="code"><pre class="py">
+log = ["ok", "warn", "ok", "error", "ok", "warn"]
+counts = {}
+for event in log:
+    counts[event] = counts.get(event, 0) + 1
+print(counts)
+print(max(counts, key=counts.get))    # the most common event
+</pre></div><div class="out">{'ok': 3, 'warn': 2, 'error': 1}
+ok</div></div>
+<h3>Nested dictionaries and lists of dictionaries</h3>
+<div class="cols"><div class="code"><pre class="py">
+fleet = {
+    "R1": {"name": "Rover", "battery": 80},
+    "R2": {"name": "Scout", "battery": 45},
+}
+print(fleet["R2"]["name"])
+for rid, info in fleet.items():
+    print(rid, info["name"], info["battery"])
+
+fleet["R3"] = {"name": "Atlas", "battery": 92}   # add a robot
+print(len(fleet))
+</pre></div><div class="out">Scout
+R1 Rover 80
+R2 Scout 45
+3</div></div>
+<h3>Tuples as keys: a map of the floor</h3>
+<p>A key must be unchangeable, so a <b>tuple</b> can be a key but a <b>list</b> cannot. That makes tuples perfect for coordinates:</p>
+<div class="cols"><div class="code"><pre class="py">
+floor = {(0, 0): "start", (2, 3): "charger", (4, 1): "rock"}
+print(floor[(2, 3)])
+print(floor.get((9, 9), "empty floor"))
+</pre></div><div class="out">charger
+empty floor</div></div>
+<div class="cols"><div class="code"><pre class="py">
+bad = {[0, 0]: "start"}
+</pre></div><div class="out err">TypeError: unhashable type: 'list'</div></div>
+<p class="note">Copy a dictionary with <code>d.copy()</code> or <code>dict(d)</code>. As with lists, <code>d2 = d</code> is not a copy. Two more handy methods: <code>setdefault(key, value)</code> adds the key only if it is missing, and <code>dict.fromkeys(["x", "y"], 0)</code> builds <code>{'x': 0, 'y': 0}</code>.</p>
+<h3>Dictionary Lab</h3>
+<p>The starting dictionary is <code>{'name': 'Rover', 'battery': 100}</code>. Type a key and value, then try each button. Try <code>pop</code> on a key that does not exist.</p>
+<div class="panel">
+    <div class="form">
+      <label for="dlKey">key<input id="dlKey" value="speed" autocomplete="off"></label>
+      <label for="dlVal">value<input id="dlVal" value="5" autocomplete="off"></label>
+    </div>
+    <div class="ctrl">
+      <button class="btn" id="dlSet" type="button">d[key] = value</button>
+      <button class="btn ghost" id="dlPop" type="button">d.pop(key)</button>
+      <button class="btn ghost" id="dlGet" type="button">d.get(key)</button>
+      <button class="btn ghost" id="dlReset" type="button">Reset</button>
+    </div>
+    <div class="msg" id="dlMsg" aria-live="polite"></div>
+    <div class="dl-views">
+      <div class="out" data-h="print(d)" id="dlDict"></div>
+      <div class="out" data-h="d.keys()" id="dlKeys"></div>
+      <div class="out" data-h="d.values()" id="dlVals"></div>
+      <div class="out" data-h="d.items()" id="dlItems"></div>
+    </div>
+  </div>
+<h3>Cheat tables: what every dictionary operation does</h3>
+<h3>Adding, changing and removing</h3>
+<div class="tbl optable"><table><thead><tr><th>Operation</th><th>What it does</th><th>Try it: start, then the line</th><th>Collection afterwards</th><th>It returns</th><th>Changes the original?</th></tr></thead><tbody><tr><td><code>d[key] = v (new key)</code></td><td><b>Adds</b> a new pair when the key does not exist yet.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot["speed"] = 5</code></td><td><code>{'name': 'Rover', 'battery': 80, 'speed': 5}</code></td><td><code>nothing (a statement)</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>d[key] = v (old key)</code></td><td><b>Changes</b> the value when the key already exists.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot["battery"] = 75</code></td><td><code>{'name': 'Rover', 'battery': 75}</code></td><td><code>nothing (a statement)</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>update(other)</code></td><td>Adds or changes several pairs at once.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot.update({"battery": 75, "speed": 5})</code></td><td><code>{'name': 'Rover', 'battery': 75, 'speed': 5}</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>setdefault(k, v)</code></td><td>Returns the value of k. If k is missing it is added with v.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot.setdefault("speed", 5)</code></td><td><code>{'name': 'Rover', 'battery': 80, 'speed': 5}</code></td><td><code>5</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>pop(key)</code></td><td>Deletes the key and returns its value. Crashes (KeyError) if the key is missing.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot.pop("battery")</code></td><td><code>{'name': 'Rover'}</code></td><td><code>80</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>popitem()</code></td><td>Deletes the <b>last added</b> pair and returns it as a tuple.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot.popitem()</code></td><td><code>{'name': 'Rover'}</code></td><td><code>('battery', 80)</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>del d[key]</code></td><td>Deletes the pair. A statement, so it returns nothing.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>del robot["battery"]</code></td><td><code>{'name': 'Rover'}</code></td><td><code>nothing (a statement)</code></td><td><span class="y">Yes</span></td></tr><tr><td><code>clear()</code></td><td>Deletes every pair.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot.clear()</code></td><td><code>{}</code></td><td><code>None</code></td><td><span class="y">Yes</span></td></tr></tbody></table></div>
+<h3>Looking things up</h3>
+<div class="tbl optable"><table><thead><tr><th>Operation</th><th>What it does</th><th>Try it: start, then the line</th><th>Collection afterwards</th><th>It returns</th><th>Changes the original?</th></tr></thead><tbody><tr><td><code>d[key]</code></td><td>Reads the value. Crashes (KeyError) if the key is missing.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot["name"]</code></td><td><code>{'name': 'Rover', 'battery': 80}</code></td><td><code>'Rover'</code></td><td><span class="n">No</span></td></tr><tr><td><code>get(key)</code></td><td>Reads the value, or None if the key is missing. Never crashes.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot.get("camera")</code></td><td><code>{'name': 'Rover', 'battery': 80}</code></td><td><code>None</code></td><td><span class="n">No</span></td></tr><tr><td><code>get(key, default)</code></td><td>Reads the value, or your default if the key is missing.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot.get("camera", "none")</code></td><td><code>{'name': 'Rover', 'battery': 80}</code></td><td><code>'none'</code></td><td><span class="n">No</span></td></tr><tr><td><code>keys()</code></td><td>All the keys.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot.keys()</code></td><td><code>{'name': 'Rover', 'battery': 80}</code></td><td><code>dict_keys(['name', 'battery'])</code></td><td><span class="n">No</span></td></tr><tr><td><code>values()</code></td><td>All the values.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot.values()</code></td><td><code>{'name': 'Rover', 'battery': 80}</code></td><td><code>dict_values(['Rover', 80])</code></td><td><span class="n">No</span></td></tr><tr><td><code>items()</code></td><td>All the (key, value) pairs, ready for a loop.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot.items()</code></td><td><code>{'name': 'Rover', 'battery': 80}</code></td><td><code>dict_items([('name', 'Rover'), ('battery', 80)])</code></td><td><span class="n">No</span></td></tr><tr><td><code>key in d</code></td><td>Checks the <b>keys</b>, not the values.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>"name" in robot</code></td><td><code>{'name': 'Rover', 'battery': 80}</code></td><td><code>True</code></td><td><span class="n">No</span></td></tr><tr><td><code>len(d)</code></td><td>Number of pairs.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>len(robot)</code></td><td><code>{'name': 'Rover', 'battery': 80}</code></td><td><code>2</code></td><td><span class="n">No</span></td></tr><tr><td><code>copy()</code></td><td>A new, separate dictionary.</td><td><code>robot = {"name": "Rover", "battery": 80}<br>robot.copy()</code></td><td><code>{'name': 'Rover', 'battery': 80}</code></td><td><code>{'name': 'Rover', 'battery': 80}</code></td><td><span class="n">No</span></td></tr><tr><td><code>dict.fromkeys(keys, v)</code></td><td>Builds a new dictionary with every key set to v.</td><td><code>keys = ["x", "y"]<br>dict.fromkeys(keys, 0)</code></td><td><code>['x', 'y']</code></td><td><code>{'x': 0, 'y': 0}</code></td><td><span class="n">No</span></td></tr></tbody></table></div>
+<div class="say"><b>In one sentence</b>A dictionary is a spec sheet: ask for a label, get a value; <code>get()</code> is the safe ask, and a counting loop with <code>counts.get(x, 0) + 1</code> is its superpower.</div>
+</section>
+<section id="which">
+  <div class="sec-head"><span class="num">12 · 10 min</span><h2>Compare the four, then choose</h2></div>
+<h3>The four collections, side by side</h3>
+<p>Green means yes, red means no, amber means "it depends". Read down one column to know a collection, read across a row to compare.</p>
+<div class="tbl cmp"><table><thead><tr><th>Question</th><th>List</th><th>Tuple</th><th>Set</th><th>Dictionary</th></tr></thead><tbody><tr><td><b>Brackets</b></td><td><code>[ ]</code></td><td><code>( )</code></td><td><code>{ }</code></td><td><code>{key: value}</code></td></tr><tr><td><b>Empty one</b></td><td><code>[]</code></td><td><code>()</code></td><td><code>set()</code> (not <code>{}</code>)</td><td><code>{}</code></td></tr><tr><td><b>Ordered?</b></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td><td><span class="n">No</span></td><td><span class="y">Yes (insertion order)</span></td></tr><tr><td><b>Read by index <code>x[0]</code>?</b></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td><td><span class="n">No</span></td><td><span class="n">No, by key <code>d[k]</code></span></td></tr><tr><td><b>Slice <code>x[a:b]</code>?</b></td><td><span class="y">Yes</span></td><td><span class="y">Yes</span></td><td><span class="n">No</span></td><td><span class="n">No</span></td></tr><tr><td><b>Can change items?</b></td><td><span class="y">Yes</span></td><td><span class="n">No</span></td><td><span class="m">No, but add and remove</span></td><td><span class="y">Yes</span></td></tr><tr><td><b>Duplicates?</b></td><td><span class="y">Allowed</span></td><td><span class="y">Allowed</span></td><td><span class="n">Not allowed</span></td><td><span class="m">Keys unique, values may repeat</span></td></tr><tr><td><b>What can it hold?</b></td><td>Anything</td><td>Anything</td><td><span class="m">Only unchangeable items (no lists)</span></td><td><span class="m">Keys unchangeable, values anything</span></td></tr><tr><td><b>Add</b></td><td><code>append</code>, <code>insert</code>, <code>extend</code></td><td><span class="n">Cannot. Build a new one</span></td><td><code>add</code>, <code>update</code></td><td><code>d[k] = v</code>, <code>update</code></td></tr><tr><td><b>Delete</b></td><td><code>remove</code>, <code>pop</code>, <code>del</code>, <code>clear</code></td><td><span class="n">Cannot</span></td><td><code>remove</code>, <code>discard</code>, <code>pop</code>, <code>clear</code></td><td><code>pop</code>, <code>popitem</code>, <code>del</code>, <code>clear</code></td></tr><tr><td><b><code>in</code> checks</b></td><td>Items (slower on long lists)</td><td>Items</td><td>Items (very fast)</td><td><b>Keys</b> (very fast)</td></tr><tr><td><b>A <code>for</code> loop gives</b></td><td>Items</td><td>Items</td><td>Items, any order</td><td>Keys (use <code>.items()</code> for pairs)</td></tr><tr><td><b>Sorting</b></td><td><code>x.sort()</code> in place</td><td><code>sorted(x)</code> only</td><td><code>sorted(x)</code> only</td><td><code>sorted(d)</code> sorts the keys</td></tr><tr><td><b>Can be a dict key?</b></td><td><span class="n">No</span></td><td><span class="y">Yes</span></td><td><span class="n">No</span></td><td><span class="n">No</span></td></tr><tr><td><b>Best for</b></td><td>Ordered data that changes</td><td>Fixed records and positions</td><td>Unique items, fast "seen it?", set maths</td><td>Lookup by label</td></tr><tr><td><b>Rover example</b></td><td>Sensor log</td><td>Waypoint <code>(3, 4)</code></td><td>Visited cells</td><td>Robot settings</td></tr></tbody></table></div>
+<h3>Same task, four collections</h3>
+<p>Here is Rover's task list stored all four ways. Watch what each one allows. Note that <code>"move" in robot_dict</code> is False, because a dictionary checks its <b>keys</b>.</p>
+<div class="cols"><div class="code"><pre class="py">
+robot_list = ["scan", "move", "grip"]
+robot_tuple = ("scan", "move", "grip")
+robot_set = {"scan", "move", "grip"}
+robot_dict = {"first": "scan", "second": "move", "third": "grip"}
+
+print(len(robot_list), len(robot_tuple), len(robot_set), len(robot_dict))
+print(robot_list[0], robot_tuple[0], robot_dict["first"])     # a set has no index at all
+print("move" in robot_list, "move" in robot_tuple, "move" in robot_set, "move" in robot_dict)
+
+robot_list.append("turn")
+robot_tuple = robot_tuple + ("turn",)    # a tuple cannot change: build a new one
+robot_set.add("turn")
+robot_dict["fourth"] = "turn"
+print(robot_list)
+print(robot_tuple)
+print(sorted(robot_set))                 # sorted() because a set has no fixed order
+print(robot_dict)
+</pre></div><div class="out">3 3 3 3
+scan scan scan
+True True True False
+['scan', 'move', 'grip', 'turn']
+('scan', 'move', 'grip', 'turn')
+['grip', 'move', 'scan', 'turn']
+{'first': 'scan', 'second': 'move', 'third': 'grip', 'fourth': 'turn'}</div></div>
+<h3>Now play: which collection fits?</h3>
+<p>For each robot situation, choose the best collection. Read the reason after you answer.</p>
+<div class="panel">
+    <div class="wg-list" id="wgList"></div>
+    <div class="ctrl"><span class="score" id="wgScore"></span><button class="btn ghost" id="wgReset" type="button">Reset</button></div>
+  </div>
+<p>Stuck choosing in real life? Answer three questions and the wizard picks for you:</p>
+<div class="panel" id="wzBox"></div>
+<div class="cheat">
+    <div><b>Need to look up by a name?</b>Dictionary</div>
+    <div><b>Need unique items, "have I seen it?"</b>Set</div>
+    <div><b>Need order + changes?</b>List</div>
+    <div><b>Need fixed data?</b>Tuple</div>
+  </div>
+</section>
+<section id="rover">
+  <div class="sec-head"><span class="num">13 · 12 min</span><h2>Rover Mission Control: all four collections together</h2></div>
+<p>Time to combine everything. Rover lives on a 6 by 6 floor. It starts at <b>(0, 0)</b> facing North. It understands three commands: <b>F</b> (forward one cell), <b>L</b> (turn left) and <b>R</b> (turn right). Three obstacles block the way, and Rover simply refuses to drive into one.</p>
+<h3>Step 1: the data</h3>
+<p>Look at what each collection does here:</p>
+<div class="code"><pre class="py">
+SIZE = 6
+HEADINGS = ("N", "E", "S", "W")
+MOVES = {"N": (0, 1), "E": (1, 0), "S": (0, -1), "W": (-1, 0)}
+OBSTACLES = {(3, 2), (4, 4), (1, 4)}
+</pre></div>
+<div class="cols">
+      <div class="panel"><h3>tuple: HEADINGS</h3><p>The compass never changes, so it is a tuple. Turning right means index + 1.</p></div>
+      <div class="panel"><h3>dict: MOVES</h3><p>Look up a heading, get the (dx, dy) step. Values are tuples.</p></div>
+      <div class="panel"><h3>set: OBSTACLES</h3><p>A set of (x, y) tuples. Is a cell blocked? <code>cell in OBSTACLES</code> answers fast.</p></div>
+    </div>
+<h3>Step 2: the brain, one function</h3>
+<div class="code"><pre class="py">
+def run_rover(commands):
+    x, y = 0, 0                       # start in the corner, facing North
+    heading = 0                       # index into HEADINGS
+    path = [(x, y)]                   # list of tuples
+    for cmd in commands:
+        if cmd == "R":
+            heading = (heading + 1) % 4
+        elif cmd == "L":
+            heading = (heading - 1) % 4
+        elif cmd == "F":
+            dx, dy = MOVES[HEADINGS[heading]]
+            nxt = (x + dx, y + dy)
+            inside = 0 &lt;= nxt[0] &lt; SIZE and 0 &lt;= nxt[1] &lt; SIZE
+            if inside and nxt not in OBSTACLES:
+                x, y = nxt
+                path.append(nxt)
+    return (x, y), HEADINGS[heading], path
+</pre></div>
+<details class="reveal"><summary>How the turning works</summary><div class="body">
+      <p><code>heading</code> is an index into <code>HEADINGS</code>. Turning right adds 1, turning left subtracts 1, and <code>% 4</code> wraps around so that after "W" (index 3) comes "N" (index 0) again. Python's <code>%</code> keeps the result between 0 and 3 even for negative numbers, so <code>(0 - 1) % 4</code> is 3.</p></div></details>
+<h3>Step 3: run a mission</h3>
+<div class="cols"><div class="code"><pre class="py">
+pos, heading, path = run_rover(["F", "F", "R", "F", "F"])
+print("Final position:", pos)
+print("Heading:", heading)
+print("Path:", path)
+</pre></div><div class="out">Final position: (2, 2)
+Heading: E
+Path: [(0, 0), (0, 1), (0, 2), (1, 2), (2, 2)]</div></div>
+<h3>Step 4: a mission report</h3>
+<p>Now use a set to measure coverage and a dictionary to report. The second commands list tries to drive into the obstacle at (3, 2).</p>
+<div class="cols"><div class="code"><pre class="py">
+commands = ["R", "F", "F", "F", "L", "F", "F", "F"]
+pos, heading, path = run_rover(commands)
+
+visited = set(path)
+all_cells = {(x, y) for x in range(SIZE) for y in range(SIZE)}   # a set comprehension
+free_left = all_cells - OBSTACLES - visited
+blocked = commands.count("F") - (len(path) - 1)
+
+report = {
+    "final_position": pos,
+    "heading": heading,
+    "cells_visited": len(visited),
+    "blocked_moves": blocked,
+    "cells_left_to_explore": len(free_left),
+}
+for key, value in report.items():
+    print(key, "=", value)
+</pre></div><div class="out">final_position = (3, 1)
+heading = N
+cells_visited = 5
+blocked_moves = 2
+cells_left_to_explore = 28</div></div>
+<p class="note">A <b>set comprehension</b> is the same idea as a list comprehension, but with curly brackets. Here it builds every (x, y) cell of the floor.</p>
+<h3>Rover Simulator: you drive</h3>
+<p>Build a command list with the buttons, or load a preset. Use <b>Step</b> to run one command at a time and watch the position tuple, the path list and the visited set change. Dark cells are obstacles. The output panel matches what <code>run_rover</code> returns.</p>
+<div class="panel">
+    <div class="row" id="rvPresets"></div>
+    <div class="ctrl" id="rvBtns">
+      <button class="btn" data-c="F" type="button">F forward</button>
+      <button class="btn" data-c="L" type="button">L left</button>
+      <button class="btn" data-c="R" type="button">R right</button>
+      <button class="btn ghost" id="rvUndo" type="button">Undo</button>
+      <button class="btn ghost" id="rvClear" type="button">Clear</button>
+    </div>
+    <div class="pycall" id="rvList"></div>
+    <div class="rgrid rover" id="rvGrid" role="img" aria-label="Rover floor map"></div>
+    <div class="ctrl">
+      <button class="btn" id="rvStep" type="button">Step →</button>
+      <button class="btn ghost" id="rvAll" type="button">Run all</button>
+      <button class="btn ghost" id="rvReset" type="button">Rewind</button>
+      <span class="score" id="rvCount"></span>
+    </div>
+    <div class="msg" id="rvMsg" aria-live="polite"></div>
+    <div class="out" id="rvOut"></div>
+  </div>
+
+<h3>Your turn: extend the rover</h3>
+<div class="cheat">
+      <div><b>Easy</b>Add a fourth obstacle to <code>OBSTACLES</code> and rerun a mission.</div>
+      <div><b>Medium</b>Make <code>run_rover</code> also return how many moves were blocked.</div>
+      <div><b>Hard</b>Add a command <code>"B"</code> that drives backwards. Hint: use the opposite of the current heading.</div>
+    </div>
+<div class="say"><b>In one sentence</b>One small program used a tuple for the compass, a dict for the moves, a set for obstacles and visited cells, and a list for commands and the path: each collection did the job it is best at.</div>
+</section>
+<section id="clinic">
+  <div class="sec-head"><span class="num">14 · 8 min</span><h2>Debug clinic: predict, then fix</h2></div>
+<p>Same rules as Checkpoint 1. Predict, reveal, and learn the error messages by heart: you will see them again.</p>
+<div class="ex"><div class="panel"><h3>P6 · Tuple unpacking with a star</h3><div class="code"><pre class="py">
+(first, *rest) = (1, 2, 3, 4)
+print(first)
+print(rest)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">1
+[2, 3, 4]</div><p class="note">The star collects the leftovers into a <b>list</b>.</p></div></details></div><div class="panel"><h3>P7 · Dictionary changes</h3><div class="code"><pre class="py">
+robot = {"name": "Rover", "battery": 80}
+robot["battery"] = 75
+robot["mode"] = "patrol"
+print(robot)
+print(len(robot))
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">{'name': 'Rover', 'battery': 75, 'mode': 'patrol'}
+3</div></div></details></div><div class="panel"><h3>P8 · Set operations</h3><div class="code"><pre class="py">
+a = {1, 2, 3}
+b = {3, 4}
+print(a &amp; b)
+print(a - b)
+print(a | b)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">{3}
+{1, 2}
+{1, 2, 3, 4}</div></div></details></div><div class="panel"><h3>P9 · Duplicates in a set</h3><div class="code"><pre class="py">
+s = {1, 2, 2, 3, 3, 3}
+print(len(s))
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">3</div><p class="note">A set keeps each value once.</p></div></details></div><div class="panel"><h3>P10 · The counting pattern</h3><div class="code"><pre class="py">
+log = ["ok", "warn", "ok"]
+counts = {}
+for e in log:
+    counts[e] = counts.get(e, 0) + 1
+print(counts)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">{'ok': 2, 'warn': 1}</div></div></details></div><div class="panel"><h3>P11 · Swap</h3><div class="code"><pre class="py">
+a, b = 3, 7
+a, b = b, a
+print(a, b)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">7 3</div></div></details></div><div class="panel"><h3>B3 · The locked tuple</h3><div class="code"><pre class="py">
+colour = (255, 0, 0)
+colour[0] = 0
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out err">TypeError: 'tuple' object does not support item assignment</div><p>Tuples cannot be changed. Fix: build a new tuple <code>colour = (0, 0, 0)</code>, or use a list if it must change.</p></div></details></div><div class="panel"><h3>B4 · Indexing a set</h3><div class="code"><pre class="py">
+visited = {(0, 0), (0, 1)}
+print(visited[0])
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out err">TypeError: 'set' object is not subscriptable</div><p>Sets have no order and no positions. Fix: loop over the set, or use <code>sorted(visited)[0]</code>.</p></div></details></div><div class="panel"><h3>B5 · The missing key</h3><div class="code"><pre class="py">
+robot = {"name": "Rover"}
+print(robot["speed"])
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out err">KeyError: 'speed'</div><p>The key <code>"speed"</code> was never added. Fix: <code>robot.get("speed")</code>, or add the key first.</p></div></details></div><div class="panel"><h3>B6 · Braces are not a set</h3><div class="code"><pre class="py">
+seen = {}
+seen.add(5)
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out err">AttributeError: 'dict' object has no attribute 'add'</div><p>Empty braces make a <b>dictionary</b>. Fix: <code>seen = set()</code>.</p></div></details></div><div class="panel"><h3>B7 · A list as a key</h3><div class="code"><pre class="py">
+floor = {[0, 0]: "start"}
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out err">TypeError: unhashable type: 'list'</div><p>A key must be unchangeable. Fix: use a tuple <code>(0, 0)</code>.</p></div></details></div></div>
+</section>
+<section id="practice">
+  <div class="sec-head"><span class="num">15 · 10 min</span><h2>Practice lab: write it yourself</h2></div>
+<p>Open IDLE, Thonny or any Python editor. In class do <b>E1 to E5</b>. E6 to E10 are homework. E11 and E12 are for people who want a challenge. Use the hint only if stuck for 3 minutes. Check the solution after your own code runs.</p>
+<div class="ex"><div class="panel"><div class="ex-head"><h3>E1 · Sensor statistics</h3><span class="lvl">easy</span></div><p><code>readings = [23.5, 24.1, 22.8, 25.0, 23.9]</code>. Print how many readings there are, the lowest, the highest, and the average rounded to 2 decimals.</p><div class="out">5
+22.8
+25.0
+23.86</div><details class="reveal"><summary>Hint</summary><div class="body"><p>Use <code>len()</code>, <code>min()</code>, <code>max()</code>, <code>sum()</code> and <code>round(x, 2)</code>.</p></div></details><details class="reveal"><summary>Solution</summary><div class="body"><div class="code"><pre class="py">
+readings = [23.5, 24.1, 22.8, 25.0, 23.9]
+print(len(readings))
+print(min(readings))
+print(max(readings))
+print(round(sum(readings) / len(readings), 2))
+</pre></div></div></details></div><div class="panel"><div class="ex-head"><h3>E2 · Task queue</h3><span class="lvl">easy</span></div><p><code>tasks = ["scan", "move", "grip"]</code>. Using a <code>while</code> loop and <code>pop(0)</code>, print <code>Doing ...</code> for each task in order. At the end print the empty list.</p><div class="out">Doing scan
+Doing move
+Doing grip
+[]</div><details class="reveal"><summary>Hint</summary><div class="body"><p>An empty list counts as False, so <code>while tasks:</code> stops by itself. <code>pop(0)</code> removes the first item.</p></div></details><details class="reveal"><summary>Solution</summary><div class="body"><div class="code"><pre class="py">
+tasks = ["scan", "move", "grip"]
+while tasks:
+    print("Doing", tasks.pop(0))
+print(tasks)
+</pre></div></div></details></div><div class="panel"><div class="ex-head"><h3>E3 · Celsius to Fahrenheit</h3><span class="lvl">easy</span></div><p>With <b>one</b> list comprehension, convert <code>[0, 25, 100]</code> (degrees Celsius) to Fahrenheit. The formula is <code>c * 9 / 5 + 32</code>.</p><div class="out">[32.0, 77.0, 212.0]</div><details class="reveal"><summary>Hint</summary><div class="body"><p><code>[expression for item in iterable]</code></p></div></details><details class="reveal"><summary>Solution</summary><div class="body"><div class="code"><pre class="py">
+celsius = [0, 25, 100]
+fahrenheit = [c * 9 / 5 + 32 for c in celsius]
+print(fahrenheit)
+</pre></div></div></details></div><div class="panel"><div class="ex-head"><h3>E4 · Unique obstacle IDs</h3><span class="lvl">easy</span></div><p><code>ids = [3, 1, 3, 2, 1, 4, 2]</code>. Print the unique IDs in order, and how many repeated readings were thrown away.</p><div class="out">[1, 2, 3, 4]
+3 repeats removed</div><details class="reveal"><summary>Hint</summary><div class="body"><p>Turn the list into a set to drop duplicates. <code>sorted()</code> gives back a list.</p></div></details><details class="reveal"><summary>Solution</summary><div class="body"><div class="code"><pre class="py">
+ids = [3, 1, 3, 2, 1, 4, 2]
+unique = sorted(set(ids))
+print(unique)
+print(len(ids) - len(unique), "repeats removed")
+</pre></div></div></details></div><div class="panel"><div class="ex-head"><h3>E5 · Stats function</h3><span class="lvl">easy</span></div><p>Write a function <code>stats(values)</code> that <b>returns</b> the lowest, highest and average as three values. Call it with <code>[4, 8, 6]</code> and unpack the result into three variables, then print them.</p><div class="out">low: 4 high: 8 average: 6.0</div><details class="reveal"><summary>Hint</summary><div class="body"><p><code>return a, b, c</code> returns a tuple. Unpack with <code>x, y, z = ...</code>.</p></div></details><details class="reveal"><summary>Solution</summary><div class="body"><div class="code"><pre class="py">
+def stats(values):
+    return min(values), max(values), sum(values) / len(values)
+
+low, high, average = stats([4, 8, 6])
+print("low:", low, "high:", high, "average:", average)
+</pre></div></div></details></div><div class="panel"><div class="ex-head"><h3>E6 · Waypoint distances</h3><span class="lvl med">medium</span></div><p><code>waypoints = [(0, 0), (3, 4), (6, 8)]</code>. For each leg between neighbouring waypoints print its length, then the total. Length of a leg is <code>((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5</code>.</p><div class="out">Leg 1 : 5.0
+Leg 2 : 5.0
+Total: 10.0</div><details class="reveal"><summary>Hint</summary><div class="body"><p>Loop over the indexes <code>range(len(waypoints) - 1)</code> so that <code>waypoints[i + 1]</code> always exists. Unpack each tuple with <code>x1, y1 = ...</code>.</p></div></details><details class="reveal"><summary>Solution</summary><div class="body"><div class="code"><pre class="py">
+waypoints = [(0, 0), (3, 4), (6, 8)]
+total = 0
+for i in range(len(waypoints) - 1):
+    x1, y1 = waypoints[i]
+    x2, y2 = waypoints[i + 1]
+    leg = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+    print("Leg", i + 1, ":", leg)
+    total = total + leg
+print("Total:", total)
+</pre></div></div></details></div><div class="panel"><div class="ex-head"><h3>E7 · Sensor check</h3><span class="lvl med">medium</span></div><p><code>required = {"camera", "lidar", "imu"}</code> and <code>installed = {"camera", "imu", "gps"}</code>. Print the missing sensors, the extra sensors (both as sorted lists) and whether the robot is ready (nothing missing).</p><div class="out">Missing: ['lidar']
+Extra: ['gps']
+Ready: False</div><details class="reveal"><summary>Hint</summary><div class="body"><p>Difference <code>-</code> and <code>issubset()</code>.</p></div></details><details class="reveal"><summary>Solution</summary><div class="body"><div class="code"><pre class="py">
+required = {"camera", "lidar", "imu"}
+installed = {"camera", "imu", "gps"}
+missing = required - installed
+extra = installed - required
+print("Missing:", sorted(missing))
+print("Extra:", sorted(extra))
+print("Ready:", required.issubset(installed))
+</pre></div></div></details></div><div class="panel"><div class="ex-head"><h3>E8 · Robot profile</h3><span class="lvl med">medium</span></div><p>Create a dictionary for a robot with name "Rover" and battery 30. Add a key <code>speed</code> with value 5, then print every pair as <code>key: value</code>. Finally print "Low battery" if the battery is below 40.</p><div class="out">name: Rover
+battery: 30
+speed: 5
+Low battery</div><details class="reveal"><summary>Hint</summary><div class="body"><p>Loop with <code>for key, value in robot.items():</code>.</p></div></details><details class="reveal"><summary>Solution</summary><div class="body"><div class="code"><pre class="py">
+robot = {"name": "Rover", "battery": 30}
+robot["speed"] = 5
+for key, value in robot.items():
+    print(key + ":", value)
+if robot["battery"] &lt; 40:
+    print("Low battery")
+</pre></div></div></details></div><div class="panel"><div class="ex-head"><h3>E9 · Event counter</h3><span class="lvl med">medium</span></div><p><code>log = ["ok", "warn", "ok", "error", "ok", "warn"]</code>. Count each event in a dictionary, print it, then print the most common event.</p><div class="out">{'ok': 3, 'warn': 2, 'error': 1}
+Most common: ok</div><details class="reveal"><summary>Hint</summary><div class="body"><p><code>counts.get(event, 0)</code> gives the old count, or 0 if the event is new.</p></div></details><details class="reveal"><summary>Solution</summary><div class="body"><div class="code"><pre class="py">
+log = ["ok", "warn", "ok", "error", "ok", "warn"]
+counts = {}
+for event in log:
+    counts[event] = counts.get(event, 0) + 1
+print(counts)
+print("Most common:", max(counts, key=counts.get))
+</pre></div></div></details></div><div class="panel"><div class="ex-head"><h3>E10 · Grid obstacles</h3><span class="lvl med">medium</span></div><p>For the grid below, print how many obstacles (1s) it has and the list of their <code>(row, col)</code> tuples.</p><div class="out">3
+[(0, 1), (2, 0), (2, 2)]</div><details class="reveal"><summary>Hint</summary><div class="body"><p>A loop inside a loop: rows first, then columns.</p></div></details><details class="reveal"><summary>Solution</summary><div class="body"><div class="code"><pre class="py">
+grid = [
+    [0, 1, 0],
+    [0, 0, 0],
+    [1, 0, 1],
+]
+obstacles = []
+for r in range(len(grid)):
+    for c in range(len(grid[r])):
+        if grid[r][c] == 1:
+            obstacles.append((r, c))
+print(len(obstacles))
+print(obstacles)
+</pre></div></div></details></div><div class="panel"><div class="ex-head"><h3>E11 · Fleet report</h3><span class="lvl hard">challenge</span></div><p><code>fleet = {"R1": {"name": "Rover", "battery": 80}, "R2": {"name": "Scout", "battery": 45}, "R3": {"name": "Atlas", "battery": 30}}</code>. Print the names of robots with battery below 50 in alphabetical order, then the average battery of the whole fleet.</p><div class="out">['Atlas', 'Scout']
+51.67</div><details class="reveal"><summary>Hint</summary><div class="body"><p><code>fleet.values()</code> gives the inner dictionaries. Use a comprehension with a condition.</p></div></details><details class="reveal"><summary>Solution</summary><div class="body"><div class="code"><pre class="py">
+fleet = {
+    "R1": {"name": "Rover", "battery": 80},
+    "R2": {"name": "Scout", "battery": 45},
+    "R3": {"name": "Atlas", "battery": 30},
+}
+low = [info["name"] for info in fleet.values() if info["battery"] &lt; 50]
+print(sorted(low))
+levels = [info["battery"] for info in fleet.values()]
+print(round(sum(levels) / len(levels), 2))
+</pre></div></div></details></div><div class="panel"><div class="ex-head"><h3>E12 · Count blocked moves</h3><span class="lvl hard">challenge</span></div><p>Copy <code>run_rover</code> from Step 2 and change it so it also returns how many <code>F</code> commands were blocked. Test it with the commands below and print the final position and the blocked count.</p><div class="out">(3, 1) 2</div><details class="reveal"><summary>Hint</summary><div class="body"><p>Add <code>blocked = 0</code> before the loop, and an <code>else:</code> branch under the <code>if inside and ...</code> test. Remember the extra value in <code>return</code>.</p></div></details><details class="reveal"><summary>Solution</summary><div class="body"><div class="code"><pre class="py">
+SIZE = 6
+HEADINGS = ("N", "E", "S", "W")
+MOVES = {"N": (0, 1), "E": (1, 0), "S": (0, -1), "W": (-1, 0)}
+OBSTACLES = {(3, 2), (4, 4), (1, 4)}
+
+def run_rover(commands):
+    x, y = 0, 0
+    heading = 0
+    path = [(x, y)]
+    blocked = 0
+    for cmd in commands:
+        if cmd == "R":
+            heading = (heading + 1) % 4
+        elif cmd == "L":
+            heading = (heading - 1) % 4
+        elif cmd == "F":
+            dx, dy = MOVES[HEADINGS[heading]]
+            nxt = (x + dx, y + dy)
+            inside = 0 &lt;= nxt[0] &lt; SIZE and 0 &lt;= nxt[1] &lt; SIZE
+            if inside and nxt not in OBSTACLES:
+                x, y = nxt
+                path.append(nxt)
+            else:
+                blocked = blocked + 1
+    return (x, y), HEADINGS[heading], path, blocked
+
+pos, heading, path, blocked = run_rover(["R", "F", "F", "F", "L", "F", "F", "F"])
+print(pos, blocked)
+</pre></div></div></details></div></div>
+</section>
+<section id="quiz">
+  <div class="sec-head"><span class="num">16 · 4 min</span><h2>Speed round and quiz</h2></div>
+<h3>Myth or fact?</h3>
+<p>Decide fast. True or false?</p>
+<div class="panel">
+    <div class="wg-list" id="mfList"></div>
+    <div class="ctrl"><span class="score" id="mfScore"></span><button class="btn ghost" id="mfReset" type="button">Reset</button></div>
+  </div>
+<h3>Quiz</h3>
+<p>Answer all fifteen. Your score appears at the end.</p>
+<div class="panel" id="quizBox"></div>
+<div class="ctrl"><span class="score" id="quizScore"></span><button class="btn ghost" id="quizReset" type="button">Try again</button></div>
+</section>
+<section id="wrap">
+  <div class="sec-head"><span class="num">17 · 4 min</span><h2>Summary and homework</h2></div>
+<div class="cheat">
+    <div><b>list [ ]</b>Ordered, changeable, duplicates allowed. <code>append</code>, <code>insert</code>, <code>remove</code>, <code>pop</code>, <code>sort</code>.</div>
+    <div><b>tuple ( )</b>Ordered, fixed. Positions and constants. One item needs a comma: <code>(5,)</code>. Unpack with <code>x, y = p</code>.</div>
+    <div><b>set { }</b>Unique items, no order, no index. <code>|</code> union, <code>&amp;</code> both, <code>-</code> difference, <code>^</code> either-not-both.</div>
+    <div><b>dict {k: v}</b>Look up by key. <code>get()</code> is safe, <code>items()</code> gives pairs, keys are unique.</div>
+    <div><b>index and slice</b><code>x[0]</code> first, <code>x[-1]</code> last, <code>x[a:b]</code> stops before b. Also works on strings.</div>
+    <div><b>grid</b>A list of lists: <code>grid[row][col]</code>. Build with a comprehension, not <code>* rows</code>.</div>
+    <div><b>copy trap</b><code>b = a</code> shares one object. Use <code>a.copy()</code> for a separate one.</div>
+    <div><b>loops</b><code>for</code>, <code>enumerate</code>, <code>zip</code>, and comprehensions <code>[x for x in items if cond]</code>.</div>
+    <div><b>sort vs sorted</b><code>x.sort()</code> edits and returns None. <code>sorted(x)</code> returns a new list.</div>
+    <div><b>counting</b><code>counts[x] = counts.get(x, 0) + 1</code> counts anything.</div>
+    <div><b>len and in</b><code>len(x)</code> counts items. <code>item in x</code> checks membership (keys for a dict).</div>
+    <div><b>choosing</b>Label lookup: dict. Unique: set. Fixed: tuple. Ordered and changing: list.</div>
+  </div>
+<div class="panel">
+    <h3>Homework (submit next class)</h3>
+    <p>1. Finish exercises E6 to E10 and bring the code running. E11 and E12 earn bonus respect.</p>
+    <p>2. Do the assignment sheet <b>Python Collections</b> (shared separately with this lecture).</p>
+    <p>3. Extend the Rover: add one more obstacle and one new command of your choice, then test it with three different command lists.</p>
+    <p>4. In two or three sentences, explain to a friend when you would choose a tuple instead of a list, and when a set instead of a list.</p>
+  </div>
+<p class="note">Next lecture: functions that work with collections, and reading sensor data from files.</p>
+</section>
+<footer>Python Basics · Fall 2026 · Riphah International University, Lahore</footer>
+</div>
+
+<script>
+(function(){
+  const DATA = {"parts": ["motor", "sensor", "wheel", "camera", "battery", "gripper"], "lsLines": ["queue = [\"scan\", \"forward\", \"turn\"]", "queue.append(\"grip\")", "queue.insert(1, \"beep\")", "queue.remove(\"forward\")", "done = queue.pop()", "queue[0] = \"calibrate\"", "queue.sort()", "print(queue)"], "lsSteps": [{"l": 0, "t": "Rover has a to-do list with three tasks. Python numbers them <b>0, 1, 2</b>.", "state": ["scan", "forward", "turn"], "extra": "", "out": ""}, {"l": 1, "t": "<code>append()</code> adds one task at the <b>end</b> of the list.", "state": ["scan", "forward", "turn", "grip"], "extra": "", "out": ""}, {"l": 2, "t": "<code>insert(1, \"beep\")</code> puts a task at index 1. Everything after it shifts one place right.", "state": ["scan", "beep", "forward", "turn", "grip"], "extra": "", "out": ""}, {"l": 3, "t": "<code>remove(\"forward\")</code> deletes the first task whose <b>value</b> is \"forward\". Later tasks shift left.", "state": ["scan", "beep", "turn", "grip"], "extra": "", "out": ""}, {"l": 4, "t": "<code>pop()</code> with no number removes the <b>last</b> task and hands it back. <code>done</code> now holds \"grip\".", "state": ["scan", "beep", "turn"], "extra": "done = 'grip'", "out": ""}, {"l": 5, "t": "Lists are <b>changeable</b>: assign to an index to replace that task.", "state": ["calibrate", "beep", "turn"], "extra": "done = 'grip'", "out": ""}, {"l": 6, "t": "<code>sort()</code> puts the tasks in alphabetical order and changes the list itself.", "state": ["beep", "calibrate", "turn"], "extra": "done = 'grip'", "out": ""}, {"l": 7, "t": "Print the final list.", "state": ["beep", "calibrate", "turn"], "extra": "done = 'grip'", "out": "['beep', 'calibrate', 'turn']"}], "which": [["Sensor readings in the order they arrive; new ones are added at the end", "L", "ordered data that grows, so a list"], ["The robot's start position (x, y), which must never change", "T", "a fixed pair, so a tuple"], ["IDs of obstacles detected (the same one may be seen many times)", "S", "unique items only, so a set"], ["Robot settings looked up by name: speed, name, battery", "D", "look up a value by a label, so a dict"], ["Grid cells the robot has already visited", "S", "you only care if a cell was visited, not how often, so a set"], ["Queue of commands to run, in order", "L", "ordered and changing, so a list"], ["The four compass headings N, E, S, W", "T", "fixed data that never changes, so a tuple"], ["Map: coordinates lead to what is there (charger, rock)", "D", "look up by a key (the coordinates), so a dict"], ["Waypoints the robot must visit, one after another", "L", "an ordered list (each waypoint itself is a tuple)"], ["Remove duplicate student IDs from an attendance sheet", "S", "a set drops duplicates automatically"], ["Count how many times each error code appeared", "D", "error code is the key, count is the value, so a dict"], ["The RGB colour of an LED: (red, green, blue)", "T", "three fixed numbers, so a tuple"]], "myth": [["A list can hold items of different types.", "T", "yes: numbers, text and booleans can sit in one list"], ["You can call append() on a tuple.", "F", "tuples cannot change, so they have no append()"], ["A set can contain the same value twice.", "F", "a set keeps each value only once"], ["Dictionary keys must be unique.", "T", "adding an existing key just changes its value"], ["b = a makes a separate copy of a list.", "F", "it only gives the same list a second name"], ["x = {} creates an empty set.", "F", "it creates an empty dictionary; use set() for a set"], ["The first item of a list has index 1.", "F", "Python counts from 0"], ["A tuple can be used as a dictionary key.", "T", "tuples are fixed, so they are allowed as keys; lists are not"]], "wizard": {"q1": {"q": "Do you need to find a value by a name or label, like \"battery\" or \"speed\"?", "y": "D", "n": "q2"}, "q2": {"q": "Must every item appear only once, and you do not care about the order?", "y": "S", "n": "q3"}, "q3": {"q": "Will you add, remove or change items after creating it?", "y": "L", "n": "T"}, "res": {"D": ["Dictionary", "{\"speed\": 5, \"battery\": 100}", "Look up by key with robot[\"speed\"] or robot.get(\"speed\")."], "S": ["Set", "{(0, 0), (0, 1), (1, 1)}", "Great for visited cells and unique IDs. Use | & - ^ for set maths."], "L": ["List", "[\"scan\", \"forward\", \"turn\"]", "Ordered and changeable: append, insert, remove, pop, sort."], "T": ["Tuple", "(3, 4)", "Ordered but locked: perfect for positions and constants."]}}, "quiz": [["Which collection is ordered, changeable and allows duplicates?", ["List", "Tuple", "Set", "None of them"], 0, "A list is ordered and changeable, and it allows duplicate values."], ["parts = ['motor', 'sensor', 'wheel'].  What is parts[-1]?", ["'motor'", "'wheel'", "An error", "'sensor'"], 1, "Index -1 is the last item."], ["nums = [10, 20, 30, 40].  What is nums[1:3]?", ["[10, 20, 30]", "[20, 30, 40]", "[20, 30]", "[10, 20]"], 2, "A slice starts at index 1 and stops BEFORE index 3."], ["What is the main difference between a list and a tuple?", ["Lists are faster to type", "A tuple cannot be changed after creation", "A tuple cannot hold numbers", "A list cannot hold text"], 1, "Tuples are unchangeable. Lists are changeable."], ["Which line creates a tuple with ONE item?", ["t = ('apple')", "t = ['apple']", "t = ('apple',)", "t = {'apple'}"], 2, "The comma is what makes it a tuple. Without it you just get a string."], ["Which collection removes duplicate values automatically?", ["List", "Tuple", "Set", "Every collection does"], 2, "A set only keeps unique items."], ["What does  x = {}  create?", ["An empty set", "An empty list", "An empty tuple", "An empty dictionary"], 3, "Empty braces make a dictionary. Use set() for an empty set."], ["robot = {'name': 'Rover'}.  What does robot.get('speed') give?", ["KeyError", "None", "'speed'", "0"], 1, "get() returns None for a missing key instead of crashing."], ["a = [1, 2, 3], then  b = a, then  b.append(4).  What is a?", ["[1, 2, 3]", "[1, 2, 3, 4]", "[4]", "An error"], 1, "b = a does not copy. Both names point to the same list."], ["Which expression gives the cells in set A but NOT in set B?", ["A | B", "A & B", "A - B", "A ^ B"], 2, "A - B is the difference."], ["nums = [3, 1, 2].  What does  sorted(nums)  do to nums?", ["Sorts nums in place", "Nothing: it returns a new sorted list", "Deletes nums", "Returns None"], 1, "sorted() leaves the original alone. nums.sort() is the one that changes it (and returns None)."], ["Which of these can be a dictionary key?", ["[1, 2]", "{1, 2}", "(1, 2)", "None of them"], 2, "Keys must be unchangeable. A tuple works; a list or a set does not."], ["grid = [[0] * 3] * 2, then  grid[0][0] = 9.  What happens?", ["Only the first row changes", "Both rows change", "Error", "Nothing changes"], 1, "The outer * 2 repeats the SAME inner list, so both rows are one object. Use a comprehension instead."], ["for i, p in enumerate(parts):  What is i?", ["The item", "The index number", "The length", "A copy of the list"], 1, "enumerate() gives (index, item) pairs."], ["Which pattern counts how often each item appears in a list?", ["counts[x] = counts.get(x, 0) + 1 in a loop", "set(x)", "x.sort()", "tuple(x)"], 0, "A dictionary of counts: get(x, 0) gives the old count or 0 for a new item."]]};
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const KW = new Set(['class','def','return','if','else','elif','for','in','while','pass','True','False','None','and','or','not','import','from','del','is','lambda']);
+  const BI = new Set(['print','type','len','range','int','str','list','tuple','set','dict','sorted','sum','max','min','abs','frozenset']);
+  function hl(src){
+    const re = /(#[^\n]*)|(f?"[^"\n]*"|f?'[^'\n]*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_][A-Za-z0-9_]*)/g;
+    let out='', last=0, m, prev='';
+    while((m = re.exec(src))){
+      out += esc(src.slice(last, m.index));
+      if(m[1]){ out += '<span class="t-com">'+esc(m[1])+'</span>'; prev=''; }
+      else if(m[2]){ out += '<span class="t-str">'+esc(m[2])+'</span>'; prev=''; }
+      else if(m[3]){ out += '<span class="t-num">'+m[3]+'</span>'; prev=''; }
+      else {
+        const w = m[4];
+        if(KW.has(w)) out += '<span class="t-kw">'+w+'</span>';
+        else if(w==='self') out += '<span class="t-self">self</span>';
+        else if(prev==='def' || prev==='class') out += '<span class="t-def">'+w+'</span>';
+        else if(BI.has(w)) out += '<span class="t-bi">'+w+'</span>';
+        else out += w;
+        prev = w;
+      }
+      last = re.lastIndex;
+    }
+    return out + esc(src.slice(last));
+  }
+  function selectIn(box){
+    const r = document.createRange(); r.selectNodeContents(box.querySelector('pre'));
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+  function addCopy(box, text){
+    const b = document.createElement('button');
+    b.className='copy'; b.type='button'; b.textContent='Copy';
+    b.addEventListener('click', ()=>{
+      const done = ()=>{ b.textContent='Copied'; setTimeout(()=>b.textContent='Copy',1400); };
+      try{ navigator.clipboard.writeText(text).then(done, ()=>selectIn(box)); }
+      catch(e){ selectIn(box); }
+    });
+    box.appendChild(b);
+  }
+  document.querySelectorAll('pre.py').forEach(pre=>{
+    const src = pre.textContent.replace(/^\n+/,'').replace(/\s+$/,'');
+    pre.innerHTML = hl(src);
+    addCopy(pre.parentElement, src);
+  });
+
+  /* python-style repr helpers */
+  const pyv = v => typeof v==='number' ? String(v) : "'"+String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"'";
+  const pylist = a => '['+a.map(pyv).join(', ')+']';
+  const pyset = a => a.length ? '{'+a.map(pyv).join(', ')+'}' : 'set()';
+  const parseTok = t => /^-?\d+(\.\d+)?$/.test(t) ? Number(t) : t;
+  const $ = id => document.getElementById(id);
+
+  /* ---------- index and slice explorer ---------- */
+  (function(){
+    const FR = DATA.parts, n = FR.length;
+    let mode = 'slice', A = '1', B = '4';
+    const tabs = $('ixTabs'), cells = $('ixCells'), inA = $('ixA'), inB = $('ixB'), gB = $('ixBgrp'), call = $('ixCall'), out = $('ixOut'), pre = $('ixPresets');
+    [['index','Single index'],['slice','Slice']].forEach(([k,l])=>{
+      const t = document.createElement('button'); t.type='button'; t.className='tab'; t.textContent=l; t.dataset.k=k;
+      t.addEventListener('click', ()=>{ mode=k; if(k==='index'){A='0';} else {A='1'; B='4';} sync(); render(); });
+      tabs.appendChild(t);
+    });
+    inA.addEventListener('input', ()=>{ A=inA.value; render(); });
+    inB.addEventListener('input', ()=>{ B=inB.value; render(); });
+    const P = { index:[['0'],['2'],['-1'],['-6'],['5'],['6']], slice:[['1','4'],['','3'],['2',''],['-3','-1'],['0','100'],['3','1']] };
+    function sync(){
+      [...tabs.children].forEach(t=>t.setAttribute('aria-pressed', t.dataset.k===mode));
+      gB.hidden = mode==='index';
+      pre.innerHTML='';
+      P[mode].forEach(p=>{
+        const b=document.createElement('button'); b.type='button'; b.className='chip';
+        b.textContent = mode==='index' ? 'parts['+p[0]+']' : 'parts['+p[0]+':'+p[1]+']';
+        b.addEventListener('click', ()=>{ A=p[0]; if(mode==='slice') B=p[1]; render(); });
+        pre.appendChild(b);
+      });
+    }
+    function norm(s, dflt){
+      s = String(s).trim(); if(s==='') return dflt;
+      let i = parseInt(s,10); if(isNaN(i)) return dflt;
+      if(i<0) i+=n; return Math.min(Math.max(i,0),n);
+    }
+    function render(){
+      inA.value = A; inB.value = B;
+      let sel = [], res = '', err = false;
+      if(mode==='index'){
+        call.innerHTML = 'parts[<b>'+esc(A||' ')+'</b>]';
+        const i = parseInt(A,10);
+        if(isNaN(i)){ res='Type a whole number, for example 2 or -1'; err=true; }
+        else if(i<-n || i>=n){ res='IndexError: list index out of range'; err=true; }
+        else { const k = i<0 ? i+n : i; sel=[k]; res = pyv(FR[k]); }
+      } else {
+        call.innerHTML = 'parts[<b>'+esc(A)+'</b>:<b>'+esc(B)+'</b>]';
+        const s = norm(A,0), e = norm(B,n);
+        for(let k=s;k<e;k++) sel.push(k);
+        res = pylist(FR.slice(s,e));
+      }
+      cells.innerHTML = FR.map((f,i)=>'<div class="cell'+(sel.includes(i)?' sel':'')+'"><span class="pi">'+i+'</span><span>'+esc(f)+'</span><span class="ni">'+(i-n)+'</span></div>').join('');
+      out.className = err ? 'out err' : 'out';
+      out.textContent = res;
+    }
+    sync(); render();
+  })();
+
+  /* ---------- list operations stepper ---------- */
+  (function(){
+    const LINES = DATA.lsLines, STEPS = DATA.lsSteps;
+    const sc = $('lsCode');
+    sc.innerHTML = LINES.map((l,i)=>'<span class="ln" data-i="'+i+'">'+(l?hl(l):' ')+'</span>').join('');
+    addCopy(sc.parentElement, LINES.join('\n'));
+    let si = 0;
+    function render(){
+      const s = STEPS[si];
+      sc.querySelectorAll('.ln').forEach(el=>{
+        const i = +el.dataset.i;
+        el.classList.toggle('on', i===s.l);
+        el.classList.toggle('done', i<s.l);
+      });
+      $('lsNo').textContent = 'Step '+(si+1)+' of '+STEPS.length;
+      $('lsText').innerHTML = s.t;
+      let h = s.state.map((v,i)=>'<span class="box">'+i+' · '+esc(pyv(v))+'</span>').join('');
+      if(s.extra) h += '<span class="box" style="border-style:dashed">'+esc(s.extra)+'</span>';
+      $('lsMem').innerHTML = h || '<span class="note">empty</span>';
+      $('lsOut').textContent = s.out || '(nothing printed yet)';
+      $('lsPrev').disabled = si===0;
+      $('lsNext').textContent = si===STEPS.length-1 ? 'Start over' : 'Next line →';
+    }
+    $('lsNext').addEventListener('click', ()=>{ si = si===STEPS.length-1 ? 0 : si+1; render(); });
+    $('lsPrev').addEventListener('click', ()=>{ if(si>0){ si--; render(); } });
+    render();
+  })();
+
+  /* ---------- aliasing demo ---------- */
+  (function(){
+    let mode='alias', ran=false;
+    const tabs=$('alTabs'), view=$('alView'), code=$('alCode');
+    [['alias','b = a'],['copy','b = a.copy()']].forEach(([k,l])=>{
+      const t=document.createElement('button'); t.type='button'; t.className='tab'; t.textContent=l; t.dataset.k=k;
+      t.addEventListener('click', ()=>{ mode=k; ran=false; render(); });
+      tabs.appendChild(t);
+    });
+    $('alRun').addEventListener('click', ()=>{ ran=true; render(); });
+    $('alReset').addEventListener('click', ()=>{ ran=false; render(); });
+    function render(){
+      [...tabs.children].forEach(t=>t.setAttribute('aria-pressed', t.dataset.k===mode));
+      const a=[1,2,3]; const b = mode==='alias' ? a : a.slice();
+      if(ran) b.push(4);
+      const lines = ['a = [1, 2, 3]', mode==='alias' ? 'b = a' : 'b = a.copy()'];
+      if(ran) lines.push('b.append(4)');
+      lines.push('print(a)', 'print(b)', 'print(a is b)');
+      code.innerHTML = lines.map(l=>hl(l)).join('\n');
+      const chips = x => x.map(v=>'<span class="box">'+v+'</span>').join('');
+      view.innerHTML =
+        '<div class="al"><div class="obj"><div class="oname">a</div><div class="mem">'+chips(a)+'</div></div>'+
+        '<div class="obj"><div class="oname">b</div><div class="mem">'+chips(b)+'</div></div></div>'+
+        '<div class="out" style="margin-top:10px">'+pylist(a)+'\n'+pylist(b)+'\n'+(a===b?'True':'False')+'</div>'+
+        '<p class="note" style="margin-top:8px">'+(mode==='alias'
+          ? 'Both names point to <b>one</b> list. Changing it through <code>b</code> also changes what <code>a</code> sees.'
+          : 'The copy is a <b>separate</b> list. Changing <code>b</code> leaves <code>a</code> alone.')+'</p>';
+    }
+    render();
+  })();
+
+  /* ---------- set explorer ---------- */
+  (function(){
+    const inA=$('seA'), inB=$('seB'), ops=$('seOps'), venn=$('seVenn'), code=$('seCode'), out=$('seOut');
+    let op='union';
+    const OPS = {
+      union:['A | B','union()', ['a','both','b']],
+      inter:['A & B','intersection()', ['both']],
+      diff:['A - B','difference()', ['a']],
+      sym:['A ^ B','symmetric_difference()', ['a','b']]
+    };
+    Object.keys(OPS).forEach(k=>{
+      const t=document.createElement('button'); t.type='button'; t.className='tab'; t.textContent=OPS[k][0]; t.dataset.k=k;
+      t.addEventListener('click', ()=>{ op=k; render(); });
+      ops.appendChild(t);
+    });
+    const parse = s => [...new Set(s.split(',').map(x=>x.trim()).filter(x=>x!=='').map(parseTok))];
+    const cmp = (x,y) => (typeof x==='number' && typeof y==='number') ? x-y : (typeof x===typeof y ? String(x).localeCompare(String(y)) : (typeof x==='number'?-1:1));
+    function render(){
+      [...ops.children].forEach(t=>t.setAttribute('aria-pressed', t.dataset.k===op));
+      const A=parse(inA.value), B=parse(inB.value);
+      const sa=new Set(A), sb=new Set(B);
+      const onlyA=A.filter(x=>!sb.has(x)).sort(cmp), onlyB=B.filter(x=>!sa.has(x)).sort(cmp), both=A.filter(x=>sb.has(x)).sort(cmp);
+      const reg = {a:onlyA, both:both, b:onlyB};
+      const on = OPS[op][2];
+      const names = {a:'only in A', both:'in both', b:'only in B'};
+      venn.innerHTML = ['a','both','b'].map(r=>'<div class="vr'+(on.includes(r)?' on':'')+'"><span class="vl">'+names[r]+'</span><span>'+(reg[r].length?esc(reg[r].join(', ')):'—')+'</span></div>').join('');
+      const res = on.flatMap(r=>reg[r]).sort(cmp);
+      code.innerHTML = hl('print('+OPS[op][0]+')')+'    <span class="t-com"># or A.'+OPS[op][1]+'</span>';
+      out.textContent = pyset(res);
+    }
+    inA.addEventListener('input', render); inB.addEventListener('input', render);
+    render();
+  })();
+
+  /* ---------- dictionary lab ---------- */
+  (function(){
+    const d = new Map([['name','Rover'],['battery',100]]);
+    const kI=$('dlKey'), vI=$('dlVal'), msg=$('dlMsg');
+    const rep = ()=>[...d.entries()];
+    const dictRepr = () => d.size ? '{'+rep().map(([k,v])=>pyv(k)+': '+pyv(v)).join(', ')+'}' : '{}';
+    function render(){
+      $('dlDict').textContent = dictRepr();
+      $('dlKeys').textContent = 'dict_keys('+pylist([...d.keys()])+')';
+      $('dlVals').textContent = 'dict_values('+pylist([...d.values()])+')';
+      $('dlItems').textContent = 'dict_items(['+rep().map(([k,v])=>'('+pyv(k)+', '+pyv(v)+')').join(', ')+'])';
+    }
+    function say(t,bad){ msg.textContent=t; msg.className='msg'+(bad?' bad':''); }
+    const key = ()=>parseTok(kI.value.trim());
+    $('dlSet').addEventListener('click', ()=>{
+      const k=key(); if(kI.value.trim()===''){ say('Type a key first.',true); return; }
+      const v=parseTok(vI.value.trim());
+      const had=d.has(k); d.set(k,v);
+      say(had ? 'Key '+pyv(k)+' already existed, so its value was changed.' : 'Key '+pyv(k)+' is new, so a new pair was added.');
+      render();
+    });
+    $('dlPop').addEventListener('click', ()=>{
+      const k=key(); if(kI.value.trim()===''){ say('Type a key first.',true); return; }
+      if(d.has(k)){ const v=d.get(k); d.delete(k); say('Removed '+pyv(k)+'. pop() gave back '+pyv(v)+'.'); }
+      else say('KeyError: '+pyv(k)+'   (pop on a missing key crashes)', true);
+      render();
+    });
+    $('dlGet').addEventListener('click', ()=>{
+      const k=key(); if(kI.value.trim()===''){ say('Type a key first.',true); return; }
+      say(d.has(k) ? 'get('+pyv(k)+') gives '+pyv(d.get(k)) : 'get('+pyv(k)+') gives None   (no crash)');
+    });
+    $('dlReset').addEventListener('click', ()=>{ d.clear(); d.set('name','Rover'); d.set('battery',100); say(''); render(); });
+    render();
+  })();
+
+    /* ---------- generic game (which collection, myth or fact) ---------- */
+  function makeGame(listId, scoreId, resetId, G, NAMES){
+    const list=$(listId), score=$(scoreId); let ans={};
+    function render(){
+      list.innerHTML=''; let right=0;
+      G.forEach(([q,a,why],i)=>{
+        const d=document.createElement('div'); d.className='item';
+        const pick=ans[i];
+        if(pick){ d.classList.add(pick===a?'ok':'no'); if(pick===a) right++; }
+        d.innerHTML='<span class="w">'+esc(q)+'</span>';
+        const btns=document.createElement('div'); btns.className='btns';
+        Object.keys(NAMES).forEach(k=>{
+          const b=document.createElement('button'); b.type='button'; b.textContent=NAMES[k];
+          b.addEventListener('click', ()=>{ ans[i]=k; render(); });
+          btns.appendChild(b);
+        });
+        d.appendChild(btns);
+        if(pick){ const fb=document.createElement('span'); fb.className='fb'; fb.textContent=(pick===a?'Correct: ':'Not quite, the answer is '+NAMES[a]+': ')+why; d.appendChild(fb); }
+        list.appendChild(d);
+      });
+      const n=Object.keys(ans).length;
+      score.textContent='Score: '+right+' / '+G.length+(n===G.length&&right===G.length?'  · Perfect!':'');
+    }
+    $(resetId).addEventListener('click', ()=>{ ans={}; render(); });
+    render();
+  }
+  makeGame('wgList','wgScore','wgReset',DATA.which,{L:'List',T:'Tuple',S:'Set',D:'Dict'});
+  makeGame('mfList','mfScore','mfReset',DATA.myth,{T:'True',F:'False'});
+
+  /* ---------- decision wizard ---------- */
+  (function(){
+    const W=DATA.wizard, box=$('wzBox'); let trail=[], cur='q1', res=null;
+    function go(yes){
+      const n=W[cur]; trail.push({q:n.q, a:yes});
+      const nxt = yes ? n.y : n.n;
+      if(W.res[nxt]) res=nxt; else cur=nxt;
+      render();
+    }
+    function render(){
+      let h='';
+      if(trail.length) h+='<div class="note">'+trail.map(t=>esc(t.q)+' <b>'+(t.a?'Yes':'No')+'</b>').join('<br>')+'</div>';
+      if(res){
+        const r=W.res[res];
+        h+='<div class="obj"><div class="oname">Use a '+esc(r[0])+'</div><div class="pyline">'+esc(r[1])+'</div><p>'+esc(r[2])+'</p></div>';
+        h+='<div class="ctrl"><button class="btn ghost" id="wzReset" type="button">Start again</button></div>';
+      } else {
+        h+='<div class="qt">'+esc(W[cur].q)+'</div><div class="ctrl"><button class="btn" id="wzY" type="button">Yes</button><button class="btn ghost" id="wzN" type="button">No</button></div>';
+      }
+      box.innerHTML=h;
+      const y=$('wzY'), n=$('wzN'), r=$('wzReset');
+      if(y) y.addEventListener('click', ()=>go(true));
+      if(n) n.addEventListener('click', ()=>go(false));
+      if(r) r.addEventListener('click', ()=>{ trail=[]; cur='q1'; res=null; render(); });
+    }
+    render();
+  })();
+
+  /* ---------- grid builder ---------- */
+  (function(){
+    const R=4, C=6; let g=[[0,0,1,0,0,0],[0,1,0,0,1,0],[0,0,0,0,0,0],[1,0,0,0,0,0]]; let sr=0, sc=2, refocus=false;
+    const cells=$('gdCells'), code=$('gdCode'), out=$('gdOut');
+    cells.style.gridTemplateColumns='repeat('+C+',minmax(0,1fr))';
+    function render(){
+      cells.innerHTML='';
+      for(let r=0;r<R;r++) for(let c=0;c<C;c++){
+        const b=document.createElement('button'); b.type='button';
+        b.className='gc'+(g[r][c]===1?' obs':'')+(r===sr&&c===sc?' sel':'');
+        b.textContent=g[r][c];
+        b.setAttribute('aria-label','row '+r+' column '+c+' value '+g[r][c]+'. Click to toggle.');
+        b.addEventListener('click', ()=>{ g[r][c]=1-g[r][c]; sr=r; sc=c; refocus=true; render(); });
+        cells.appendChild(b);
+      }
+      const lines=['grid = ['].concat(g.map(row=>'    ['+row.join(', ')+'],')).concat([']']);
+      code.innerHTML=lines.map(l=>hl(l)).join('\n');
+      const obs=[]; for(let r=0;r<R;r++) for(let c=0;c<C;c++) if(g[r][c]===1) obs.push('('+r+', '+c+')');
+      out.textContent='grid['+sr+']['+sc+']  ->  '+g[sr][sc]+'\nlen(grid), len(grid[0])  ->  '+R+', '+C+'\nobstacles  ->  ['+obs.join(', ')+']  ('+obs.length+')';
+      if(refocus){ const s=cells.querySelector('.sel'); if(s) s.focus(); refocus=false; }
+    }
+    render();
+  })();
+
+  /* ---------- rover simulator ---------- */
+  (function(){
+    const HEAD=['N','E','S','W'], MOV={N:[0,1],E:[1,0],S:[0,-1],W:[-1,0]}, OBS=[[3,2],[4,4],[1,4]], SIZE=6;
+    const isObs=(x,y)=>OBS.some(o=>o[0]===x&&o[1]===y);
+    function sim(cmds){
+      let x=0,y=0,h=0,blocked=0,last=''; const path=[[0,0]];
+      for(const c of cmds){
+        if(c==='R'){ h=(h+1)%4; last='R: turned right, now facing '+HEAD[h]; }
+        else if(c==='L'){ h=(h+3)%4; last='L: turned left, now facing '+HEAD[h]; }
+        else if(c==='F'){
+          const mv=MOV[HEAD[h]], nx=x+mv[0], ny=y+mv[1];
+          const inside=nx>=0&&nx<SIZE&&ny>=0&&ny<SIZE;
+          if(inside&&!isObs(nx,ny)){ x=nx; y=ny; path.push([x,y]); last='F: moved forward to ('+x+', '+y+')'; }
+          else { blocked++; last='F: blocked by '+(inside?'the obstacle at ('+nx+', '+ny+')':'the wall')+', Rover stays at ('+x+', '+y+')'; }
+        }
+      }
+      return {x:x,y:y,h:HEAD[h],path:path,blocked:blocked,last:last};
+    }
+    window.__rover = sim;   // exposed so the lecture can be cross-checked against the Python version
+    let cmds=[], k=0;
+    const grid=$('rvGrid'), list=$('rvList'), outEl=$('rvOut'), msg=$('rvMsg'), cnt=$('rvCount');
+    grid.style.gridTemplateColumns='repeat('+SIZE+',minmax(0,1fr))';
+    const PRE={'Square':'FFRFFRFFRFF','Blocked':'RFFFLFFF','Zigzag':'FRFLFRFLF','Wall bump':'LFF'};
+    Object.keys(PRE).forEach(n=>{
+      const b=document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=n+': '+PRE[n].split('').join(' ');
+      b.addEventListener('click', ()=>{ cmds=PRE[n].split(''); k=0; render(); });
+      $('rvPresets').appendChild(b);
+    });
+    $('rvBtns').querySelectorAll('button[data-c]').forEach(b=>b.addEventListener('click', ()=>{ cmds.push(b.dataset.c); render(); }));
+    $('rvUndo').addEventListener('click', ()=>{ cmds.pop(); if(k>cmds.length) k=cmds.length; render(); });
+    $('rvClear').addEventListener('click', ()=>{ cmds=[]; k=0; render(); });
+    $('rvStep').addEventListener('click', ()=>{ if(k<cmds.length) k++; render(); });
+    $('rvAll').addEventListener('click', ()=>{ k=cmds.length; render(); });
+    $('rvReset').addEventListener('click', ()=>{ k=0; render(); });
+    const ARROW={N:'▲',E:'▶',S:'▼',W:'◀'};
+    function render(){
+      const st=sim(cmds.slice(0,k));
+      list.innerHTML=hl('commands = ['+cmds.map(c=>'"'+c+'"').join(', ')+']');
+      const vis=new Set(st.path.map(p=>p[0]+','+p[1]));
+      let h='';
+      for(let y=SIZE-1;y>=0;y--) for(let x=0;x<SIZE;x++){
+        let cls='gc', t='';
+        if(isObs(x,y)){ cls+=' obs'; t='✕'; }
+        else if(vis.has(x+','+y)) cls+=' vis';
+        if(x===st.x&&y===st.y){ cls+=' bot'; t=ARROW[st.h]; }
+        else if(x===0&&y===0&&!isObs(x,y)) t='S';
+        h+='<div class="'+cls+'">'+t+'</div>';
+      }
+      grid.innerHTML=h;
+      grid.setAttribute('aria-label','Rover at ('+st.x+', '+st.y+') facing '+st.h);
+      cnt.textContent='Executed '+k+' of '+cmds.length;
+      msg.className='msg'+(k>0&&st.last.indexOf('blocked')>-1?' bad':'');
+      msg.textContent = k===0 ? 'Rover waits at (0, 0), facing N.' : 'Command '+k+' ('+st.last+')';
+      outEl.textContent='position = ('+st.x+', '+st.y+')\nheading  = \''+st.h+'\'\npath     = ['+st.path.map(p=>'('+p[0]+', '+p[1]+')').join(', ')+']\ncells visited = '+vis.size+'   blocked moves = '+st.blocked;
+      $('rvStep').disabled = k>=cmds.length;
+    }
+    cmds='FFRFF'.split(''); k=0; render();
+  })();
+
+  /* ---------- reading progress bar ---------- */
+  (function(){
+    const bar=$('progBar'); if(!bar) return;
+    function upd(){ const h=document.documentElement, m=h.scrollHeight-h.clientHeight; bar.style.width=(m>0?Math.min(100,h.scrollTop/m*100):0)+'%'; }
+    window.addEventListener('scroll', upd, {passive:true}); upd();
+  })();
+
+/* ---------- quiz ---------- */
+  (function(){
+    const QUIZ = DATA.quiz, qb=$('quizBox'), qs=$('quizScore');
+    let qa = {};
+    function render(){
+      qb.innerHTML='';
+      QUIZ.forEach(([q,opts,ans,why],i)=>{
+        const d=document.createElement('div'); d.className='q';
+        d.innerHTML='<div class="qt">'+(i+1)+'. '+esc(q)+'</div>';
+        const o=document.createElement('div'); o.className='opts';
+        opts.forEach((t,j)=>{
+          const b=document.createElement('button'); b.type='button'; b.className='opt'; b.textContent=t;
+          if(i in qa){ b.disabled=true; if(j===ans) b.classList.add('right'); else if(j===qa[i]) b.classList.add('wrong'); }
+          b.addEventListener('click', ()=>{ qa[i]=j; render(); });
+          o.appendChild(b);
+        });
+        d.appendChild(o);
+        if(i in qa){ const f=document.createElement('div'); f.className='qfb'; f.textContent=(qa[i]===ans?'Correct. ':'Not quite. ')+why; d.appendChild(f); }
+        qb.appendChild(d);
+      });
+      const n=Object.keys(qa).length, r=QUIZ.filter((q,i)=>qa[i]===q[2]).length;
+      qs.textContent = n<QUIZ.length ? 'Answered '+n+' of '+QUIZ.length : 'Final score: '+r+' / '+QUIZ.length+(r===QUIZ.length?' · Excellent!': r>=12?' · Well done':' · Review the sections above and try again');
+    }
+    $('quizReset').addEventListener('click', ()=>{ qa={}; render(); });
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
