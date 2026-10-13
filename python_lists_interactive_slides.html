@@ -1,0 +1,181 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Python Lists — Interactive Slides</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101b2b;color:#172b45;font:17px/1.5 Segoe UI,Arial,sans-serif}.deck{max-width:1120px;margin:auto;padding:16px}.head,.foot{display:flex;justify-content:space-between;align-items:center;color:#e9f2fb;gap:12px;padding:8px 4px}.progress{height:4px;background:#33445a;margin:8px 0 14px}.bar{height:100%;background:#e5ad45;width:0}.slide{display:none;background:#fff;border-radius:16px;padding:clamp(22px,4vw,48px);min-height:70vh;box-shadow:0 15px 45px #0004}.slide.active{display:block}.tag{font-size:.8rem;letter-spacing:2px;color:#087f8c;font-weight:800}h1{font-size:clamp(2rem,4vw,3.3rem);line-height:1.1;color:#142b4a;margin:.5em 0}.desc{font-size:1.2rem;color:#536477}.editor{border:1px solid #d3dfeb;border-radius:12px;overflow:hidden;margin-top:22px}.toolbar{background:#eaf0f6;padding:10px;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.toolbar button,.nav{border:0;border-radius:7px;padding:9px 13px;background:#087f8c;color:white;font-weight:700;cursor:pointer;margin-left:4px}.toolbar .undo,.toolbar .reset{background:#d8e3ed;color:#142b4a}.toolbar .answerBtn{background:#e5ad45;color:#352605}textarea{width:100%;min-height:180px;resize:vertical;padding:15px;background:#101d2e;color:#e8f0fb;border:0;font:15px/1.55 Consolas,monospace;tab-size:4}.output{background:#eef8f2;color:#174b36;padding:13px;min-height:48px;white-space:pre-wrap;font:14px/1.5 Consolas,monospace}.output.error{background:#fff0ef;color:#922b25}.answer{display:none;background:#fff8e8;padding:15px;margin:0;white-space:pre-wrap;font:14px/1.5 Consolas,monospace}.answer.show{display:block}.foot{padding-top:15px}.nav{background:#233b56;border:1px solid #526b83}.nav:disabled{opacity:.35}.note{color:#adc1d6;font-size:.9rem}@media(max-width:600px){.deck{padding:8px}.slide{min-height:75vh;padding:20px}.head{font-size:.9rem}.toolbar{align-items:flex-start}}
+</style></head><body><div class="deck"><div class="head"><b>PYTHON · INTERACTIVE LECTURE</b><span class="note">Use ← → keys to navigate</span></div><div class="progress"><div class="bar" id="bar"></div></div><main><section class="slide active">
+<div class="tag">PYTHON LISTS · 01 / 18</div><h1>Python Lists</h1><p class="desc">Lists are ordered, changeable, and allow duplicate values.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">Store, access, update, and process multiple values in one variable.</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 02 / 18</div><h1>Create a list</h1><p class="desc">Lists use square brackets and comma-separated items.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">mylist = ["apple", "banana", "cherry"]
+print(mylist)</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 03 / 18</div><h1>Properties and length</h1><p class="desc">len(list) returns the number of items. Duplicates count as separate items.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">items = ["apple", "banana", "apple"]
+print(len(items))
+print(items)</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 04 / 18</div><h1>List data types</h1><p class="desc">A list can contain strings, numbers, booleans, and mixed types.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">list1 = ["apple", "banana"]
+list2 = [1, 5, 7]
+list3 = [True, False]
+mixed = ["abc", 34, True]
+print(type(mixed))
+print(mixed)</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 05 / 18</div><h1>Indexing</h1><p class="desc">Positive indices start at 0. Negative index -1 means the last item.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">fruits = ["apple", "banana", "cherry"]
+print(fruits[1])
+print(fruits[-1])</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 06 / 18</div><h1>Slicing</h1><p class="desc">In list[start:stop], start is included and stop is excluded.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">fruits = ["apple", "banana", "cherry", "orange", "kiwi"]
+print(fruits[1:4])
+print(fruits[:3])
+print(fruits[-3:-1])</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 07 / 18</div><h1>Change values</h1><p class="desc">Assign to an index or replace a slice. Slice replacement can change list length.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">fruits = ["apple", "banana", "cherry"]
+fruits[1] = "blackcurrant"
+print(fruits)
+fruits[0:2] = ["kiwi", "mango"]
+print(fruits)</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 08 / 18</div><h1>Add items</h1><p class="desc">append adds one item at the end; insert adds at an index; extend adds elements from an iterable.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">items = ["apple", "banana"]
+items.append("cherry")
+items.insert(1, "kiwi")
+items.extend(["mango", "orange"])
+print(items)</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 09 / 18</div><h1>Remove items</h1><p class="desc">remove(value) removes first match; pop() removes and returns an item; clear() empties the list.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">nums = [10, 20, 30, 20]
+nums.remove(20)
+print(nums)
+removed = nums.pop()
+print("Removed:", removed)
+nums.clear()
+print(nums)</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 10 / 18</div><h1>Loop through lists</h1><p class="desc">A for loop visits each item. Index-based loops can use range(len(list)).</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">fruits = ["apple", "banana", "cherry"]
+for fruit in fruits:
+    print(fruit)
+for i in range(len(fruits)):
+    print(i, fruits[i])</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 11 / 18</div><h1>List comprehension</h1><p class="desc">Pattern: [expression for item in iterable if condition]. The condition is optional.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">fruits = ["apple", "banana", "cherry", "kiwi", "mango"]
+with_a = [x for x in fruits if "a" in x]
+upper = [x.upper() for x in fruits]
+print(with_a)
+print(upper)</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 12 / 18</div><h1>Sort and reverse</h1><p class="desc">sort() changes the list in place. reverse() reverses current order; it does not sort.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">nums = [100, 50, 65, 82, 23]
+nums.sort()
+print(nums)
+nums.sort(reverse=True)
+print(nums)
+fruits = ["banana", "Orange", "Kiwi", "cherry"]
+fruits.sort(key=str.lower)
+print(fruits)</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 13 / 18</div><h1>Copy and join</h1><p class="desc">b = a creates another reference, not a separate copy. Use copy(), list(a), or a[:] for a shallow copy.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">a = [1, 2, 3]
+b = a.copy()
+b.append(4)
+print("a =", a)
+print("b =", b)
+print(["a", "b"] + [1, 2])</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 14 / 18</div><h1>Common methods</h1><p class="desc">Methods to know: append, clear, copy, count, extend, index, insert, pop, remove, reverse, sort.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">items = ["pen", "book", "pen"]
+print(items.count("pen"))
+print(items.index("book"))
+items.reverse()
+print(items)</textarea><div class="output">Click Run to execute this example.</div></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 15 / 18</div><h1>Practice 1: Update a list</h1><p class="desc">Try it yourself. Then click Show answer to compare.</p>
+<p>Task: Complete the list operations.</p>
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button><button class="answerBtn">Show answer</button></div></div>
+<textarea spellcheck="false">scores = [72, 85, 90]
+# 1. Print the second score
+# 2. Change the first score to 75
+# 3. Append 88
+# 4. Print the list and its length
+</textarea><div class="output">Click Run to execute this example.</div><pre class="answer">print(scores[1])
+scores[0] = 75
+scores.append(88)
+print(scores)
+print(len(scores))</pre></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 16 / 18</div><h1>Practice 2: Filter and transform</h1><p class="desc">Hint: use list comprehensions and the remainder operator %.</p>
+<p>Task: Build the required new lists.</p>
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button><button class="answerBtn">Show answer</button></div></div>
+<textarea spellcheck="false">numbers = [3, 8, 11, 14, 17, 20]
+# Make a list of even numbers
+# Make a list with each number doubled
+# Print both lists
+</textarea><div class="output">Click Run to execute this example.</div><pre class="answer">even_numbers = [n for n in numbers if n % 2 == 0]
+doubled = [n * 2 for n in numbers]
+print(even_numbers)
+print(doubled)</pre></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 17 / 18</div><h1>Practice 3: Remove duplicates</h1><p class="desc">Hint: start with an empty list and check if each item is already present.</p>
+<p>Task: Keep only first occurrences, in order.</p>
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button><button class="answerBtn">Show answer</button></div></div>
+<textarea spellcheck="false">items = ["pen", "book", "pen", "bag", "book"]
+# Create a new list keeping the first occurrence
+# of each item and preserving the original order
+</textarea><div class="output">Click Run to execute this example.</div><pre class="answer">unique_items = []
+for item in items:
+    if item not in unique_items:
+        unique_items.append(item)
+print(unique_items)</pre></div>
+</section><section class="slide ">
+<div class="tag">PYTHON LISTS · 18 / 18</div><h1>Summary</h1><p class="desc">Use append/insert/extend, remove/pop/del/clear, loops, comprehensions, sort, and copy appropriately.</p>
+
+<div class="editor"><div class="toolbar"><b>Python editor</b><div><button class="run">▶ Run</button><button class="undo">Undo</button><button class="reset">Reset</button></div></div>
+<textarea spellcheck="false">Lists are ordered, mutable, and allow duplicates. Indexing starts at zero; slice stop indices are excluded.</textarea><div class="output">Click Run to execute this example.</div></div>
+</section></main><div class="foot"><button class="nav" id="prev">← Previous</button><span id="counter" class="note"></span><button class="nav" id="next">Next →</button></div><p class="note">Python execution uses Pyodide loaded from a CDN, so an internet connection is needed to run code. You can edit code, run it, undo edits, reset to the original example, and reveal practice answers.</p></div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let page=0;
+function show(n){page=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,i)=>s.classList.toggle('active',i===page));counter.textContent=(page+1)+' / '+slides.length;bar.style.width=((page+1)/slides.length*100)+'%';prev.disabled=page===0;next.disabled=page===slides.length-1}
+prev.onclick=()=>show(page-1);next.onclick=()=>show(page+1);document.addEventListener('keydown',e=>{if(e.target.tagName==='TEXTAREA')return;if(e.key==='ArrowRight')show(page+1);if(e.key==='ArrowLeft')show(page-1)});
+document.querySelectorAll('.editor').forEach(ed=>{let ta=ed.querySelector('textarea'),initial=ta.value,hist=[initial],pos=0,out=ed.querySelector('.output');
+ta.addEventListener('input',()=>{hist=hist.slice(0,pos+1);hist.push(ta.value);pos=hist.length-1});
+ed.querySelector('.undo').onclick=()=>{if(pos>0){ta.value=hist[--pos]}};
+ed.querySelector('.reset').onclick=()=>{ta.value=initial;hist=[initial];pos=0;out.textContent='Code reset. Click Run to execute.';out.classList.remove('error')};
+let ab=ed.querySelector('.answerBtn');if(ab)ab.onclick=()=>{let a=ed.querySelector('.answer');a.classList.toggle('show');ab.textContent=a.classList.contains('show')?'Hide answer':'Show answer'};
+ed.querySelector('.run').onclick=async()=>{out.textContent='Loading Python…';out.classList.remove('error');try{if(!window.pyodide){if(!window.pyLoad)window.pyLoad=import('https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.mjs').then(async m=>window.pyodide=await m.loadPyodide());await window.pyLoad}
+let text='';pyodide.setStdout({batched:s=>text+=s+'\n'});pyodide.setStderr({batched:s=>text+=s+'\n'});await pyodide.runPythonAsync(ta.value);out.textContent=text.trimEnd()||'(No printed output.)'}catch(e){out.textContent=String(e).replace(/^PythonError: /,'');out.classList.add('error')}}});
+show(0);
+</script></body></html>
