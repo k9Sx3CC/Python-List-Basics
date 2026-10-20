@@ -1,0 +1,2323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python Control Flow Lecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a single readable column on blueprint grid paper; every loop gets a SYNTAX box before its examples */
+:root{
+  --bg:#eef3fa; --grid:#dbe5f3; --paper:#ffffff; --ink:#132039; --muted:#56637c; --line:#d3ddec;
+  --blue:#1e5bbd; --blue-soft:#e3ecfa; --amber:#c98a06; --amber-soft:#fcf1d6;
+  --good:#1b7f4f; --good-soft:#e1f4ea; --bad:#b93a24; --bad-soft:#fbe6e1;
+  --code-bg:#0f1a30; --code-fg:#e4ebf7; --code-line:#1d2b48;
+  --t-kw:#ff9e64; --t-str:#9ece6a; --t-num:#f7c66a; --t-com:#7c8bad; --t-def:#7dcfff; --t-self:#e98bd4; --t-bi:#b4a7ff;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0b1425; --grid:#13213a; --paper:#111e36; --ink:#e6edfa; --muted:#9daccb; --line:#22355a;
+  --blue:#6ea4ff; --blue-soft:#172c52; --amber:#f2b733; --amber-soft:#33290f;
+  --good:#4cc78b; --good-soft:#123323; --bad:#ff7d66; --bad-soft:#3a1a14;
+  --code-bg:#070e1c; --code-fg:#e4ebf7; --code-line:#16233d; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0b1425; --grid:#13213a; --paper:#111e36; --ink:#e6edfa; --muted:#9daccb; --line:#22355a;
+  --blue:#6ea4ff; --blue-soft:#172c52; --amber:#f2b733; --amber-soft:#33290f;
+  --good:#4cc78b; --good-soft:#123323; --bad:#ff7d66; --bad-soft:#3a1a14;
+  --code-bg:#070e1c; --code-fg:#e4ebf7; --code-line:#16233d; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background-color:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:17px; line-height:1.6;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+.wrap{max-width:860px; margin:0 auto; padding-inline:16px; padding-block:0 64px}
+h1,h2,h3{font-family:var(--f-display); text-wrap:balance; line-height:1.15; margin:0}
+h1{font-size:clamp(2.1rem,5.5vw,3.3rem); font-weight:800; letter-spacing:-.02em}
+h2{font-size:clamp(1.55rem,3.6vw,2rem); font-weight:700}
+h3{font-size:1.2rem; font-weight:700}
+p{margin:0; max-width:66ch}
+code{font-family:var(--f-mono); font-size:.88em; background:var(--blue-soft); color:var(--blue); padding:.08em .35em; border-radius:4px}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--amber); outline-offset:2px}
+
+/* header */
+header.hero{padding-block:48px 28px; display:grid; gap:16px}
+.eyebrow{font-family:var(--f-mono); font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--blue)}
+.lead{font-size:1.15rem; color:var(--muted)}
+.meta{display:flex; flex-wrap:wrap; gap:8px}
+.tag{font-family:var(--f-mono); font-size:.78rem; border:1px solid var(--line); background:var(--paper); padding:4px 10px; border-radius:999px; color:var(--muted)}
+
+/* nav */
+nav.toc{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--bg); border-bottom:1px solid var(--line); margin-inline:-16px; padding:10px 16px; overflow-x:auto; white-space:nowrap}
+nav.toc a{display:inline-block; font-family:var(--f-mono); font-size:.8rem; text-decoration:none; color:var(--muted); padding:5px 10px; border-radius:6px; margin-right:2px}
+nav.toc a:hover{background:var(--blue-soft); color:var(--blue)}
+
+section{padding-block:44px 8px; display:grid; gap:18px; scroll-margin-top:56px}
+.sec-head{display:grid; gap:6px}
+.num{font-family:var(--f-mono); font-size:.8rem; color:var(--amber); font-weight:600; letter-spacing:.06em}
+.part{font-family:var(--f-display); font-size:.9rem; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); border-top:3px solid var(--blue); padding-top:6px; margin-top:20px}
+
+.panel{background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:20px; display:grid; gap:14px; min-width:0}
+.ask{border-left:4px solid var(--amber); background:var(--amber-soft); padding:12px 16px; border-radius:0 8px 8px 0}
+.ask b{font-family:var(--f-mono); font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--amber); display:block; margin-bottom:2px}
+.note{color:var(--muted); font-size:.95rem}
+ul.plain{margin:0; padding-left:1.2em; display:grid; gap:4px}
+
+/* code */
+.code{position:relative; background:var(--code-bg); color:var(--code-fg); border-radius:10px; min-width:0}
+.code pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:var(--f-mono); font-size:.9rem; line-height:1.65; tab-size:4}
+.copy{position:absolute; top:8px; right:8px; font-family:var(--f-mono); font-size:.72rem; background:var(--code-line); color:var(--code-fg); border:0; border-radius:6px; padding:4px 9px; cursor:pointer}
+.copy:hover{background:var(--blue); color:#fff}
+.t-kw{color:var(--t-kw)} .t-str{color:var(--t-str)} .t-num{color:var(--t-num)} .t-com{color:var(--t-com); font-style:italic}
+.t-def{color:var(--t-def); font-weight:600} .t-self{color:var(--t-self)} .t-bi{color:var(--t-bi)}
+.out{font-family:var(--f-mono); font-size:.9rem; background:var(--blue-soft); border-radius:8px; padding:10px 14px; white-space:pre-wrap; overflow-x:auto}
+.out::before{content:"OUTPUT"; display:block; font-size:.68rem; letter-spacing:.1em; color:var(--blue); margin-bottom:4px}
+.out[data-l]::before{content:attr(data-l)}
+.out.err{background:var(--bad-soft)} .out.err::before{content:"ERROR"; color:var(--bad)}
+.outs{display:grid; gap:10px; align-content:start; min-width:0}
+.outs > .out{margin:0}
+
+/* syntax box: shown before every loop */
+.syn{border:2px dashed var(--amber); border-radius:12px; padding:12px 14px 14px; background:var(--amber-soft); display:grid; gap:8px; min-width:0}
+.syn .lbl{font-family:var(--f-mono); font-size:.72rem; letter-spacing:.12em; color:var(--amber); font-weight:600}
+.legend{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:6px 16px; font-size:.92rem}
+.legend div{border-left:3px solid var(--amber); padding-left:10px}
+
+/* two column */
+.cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; align-items:start}
+.cols > *{min-width:0}
+.stackcols{display:grid; gap:12px; min-width:0}
+
+/* analogy */
+.analogy{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
+.an{border:1px dashed var(--line); border-radius:10px; padding:14px; background:var(--paper)}
+.an .pair{display:flex; justify-content:space-between; gap:8px; font-family:var(--f-mono); font-size:.82rem; margin-top:6px}
+.an .pair span:first-child{color:var(--blue)} .an .pair span:last-child{color:var(--amber)}
+
+/* flow diagram */
+.flow{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
+.flow .step{border:2px solid var(--blue); border-radius:10px; padding:12px; background:var(--blue-soft); font-family:var(--f-mono); font-size:.82rem}
+.flow .step b{display:block; color:var(--blue); margin-bottom:4px}
+
+/* sort game */
+.tabs{display:flex; flex-wrap:wrap; gap:6px}
+.tab{font:inherit; font-size:.9rem; border:1px solid var(--line); background:var(--paper); color:var(--ink); padding:6px 14px; border-radius:999px; cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--blue); color:#fff; border-color:var(--blue)}
+.sort-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:10px}
+.item{border:1px solid var(--line); border-radius:10px; padding:10px 12px; display:grid; gap:8px; background:var(--paper)}
+.item .w{font-weight:700}
+.item .btns{display:flex; gap:6px}
+.item button{flex:1; font:inherit; font-size:.82rem; border:1px solid var(--line); background:var(--bg); color:var(--ink); border-radius:6px; padding:5px 6px; cursor:pointer}
+.item.ok{border-color:var(--good); background:var(--good-soft)}
+.item.no{border-color:var(--bad); background:var(--bad-soft)}
+.item .fb{font-size:.82rem; font-family:var(--f-mono)}
+.score{font-family:var(--f-mono); font-size:.9rem; color:var(--muted); font-variant-numeric:tabular-nums}
+
+/* labs */
+.form{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; align-items:end}
+.form label{display:grid; gap:4px; font-size:.82rem; color:var(--muted); font-family:var(--f-mono)}
+.form input,.form select{font:inherit; font-size:.95rem; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink); width:100%}
+.btn{font:inherit; font-weight:700; font-size:.95rem; background:var(--blue); color:#fff; border:0; border-radius:8px; padding:9px 16px; cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent; color:var(--blue); border:1px solid var(--blue)}
+.btn:disabled{opacity:.4; cursor:default}
+.pyline{font-family:var(--f-mono); font-size:.9rem; color:var(--blue)}
+.rungs{display:grid; gap:8px}
+.rung{border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-family:var(--f-mono); font-size:.85rem; background:var(--paper)}
+.rung .st{display:block; font-size:.75rem; color:var(--muted)}
+.rung.hit{border-color:var(--good); background:var(--good-soft)}
+.rung.skip{opacity:.75} .rung.never{opacity:.45}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{font-family:var(--f-mono); font-size:.85rem; background:var(--amber-soft); border:1px solid var(--amber); border-radius:6px; padding:2px 9px}
+
+/* stepper */
+.stepper{display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:14px}
+@media (max-width:700px){ .stepper{grid-template-columns:1fr} }
+.stepper .ln{display:block; padding:0 6px; border-radius:4px; opacity:.55}
+.stepper .ln.on{background:var(--code-line); opacity:1; box-shadow:inset 3px 0 0 var(--amber)}
+.explain{display:grid; gap:10px; align-content:start}
+.explain .stepno{font-family:var(--f-mono); font-size:.78rem; color:var(--muted); font-variant-numeric:tabular-nums}
+.mem{display:flex; flex-wrap:wrap; gap:8px}
+.mem .box{border:1px solid var(--amber); border-radius:8px; padding:6px 10px; font-family:var(--f-mono); font-size:.78rem; background:var(--amber-soft)}
+.ctrl{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+
+/* reveals */
+details{border:1px solid var(--line); border-radius:10px; background:var(--paper)}
+details > summary{cursor:pointer; padding:10px 14px; font-weight:700; list-style:none; display:flex; align-items:center; gap:8px}
+details > summary::-webkit-details-marker{display:none}
+details > summary::before{content:"+"; font-family:var(--f-mono); color:var(--blue); width:1ch}
+details[open] > summary::before{content:"–"}
+details > .body{padding:0 14px 14px; display:grid; gap:10px}
+.reveal{border:0; background:transparent}
+.reveal > summary{padding:6px 0; font-weight:700; color:var(--blue); font-size:.92rem}
+.reveal > .body{padding:4px 0 0}
+.ex{display:grid; gap:12px}
+.ex-head{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap}
+.lvl{font-family:var(--f-mono); font-size:.72rem; padding:2px 8px; border-radius:999px; background:var(--blue-soft); color:var(--blue)}
+.lvl.med{background:var(--amber-soft); color:var(--amber)}
+.lvl.hard{background:var(--bad-soft); color:var(--bad)}
+
+/* quiz */
+.q{display:grid; gap:8px}
+.q .qt{font-weight:700}
+.opts{display:grid; gap:6px}
+.opt{font:inherit; text-align:left; border:1px solid var(--line); background:var(--bg); color:var(--ink); border-radius:8px; padding:8px 12px; cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--blue)}
+.opt.right{border-color:var(--good); background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad); background:var(--bad-soft)}
+.opt[disabled]{cursor:default}
+.qfb{font-size:.9rem; color:var(--muted)}
+
+/* tables */
+.tbl{overflow-x:auto}
+table{border-collapse:collapse; width:100%; font-size:.93rem}
+th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+th{font-family:var(--f-mono); font-size:.75rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+td.t{font-family:var(--f-mono); white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--blue)}
+td.c{font-family:var(--f-mono)}
+
+.cheat{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px}
+.cheat div{border:1px solid var(--line); border-radius:10px; padding:12px; background:var(--paper)}
+.cheat b{font-family:var(--f-mono); color:var(--blue); display:block; margin-bottom:4px}
+footer{padding-block:40px 0; color:var(--muted); font-size:.85rem}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important; scroll-behavior:auto!important} }
+html{scroll-behavior:smooth}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">Basic Python Programming · Control Flow · Fall 2026 · Lecture 6</div>
+  <h1>Decisions and Loops: teaching Python to choose and to repeat</h1>
+  <p class="lead">Today your programs learn two superpowers: <b>deciding</b> (if, elif, else, match) and <b>repeating</b> (for, while). For every new statement we first see its <b>syntax</b>, then examples that really run, then we break them on purpose.</p>
+  <div class="meta">
+    <span class="tag">Python 3 </span><span class="tag">180 minutes</span><span class="tag"> BS CSE & BS Robotics</span><span class="tag">Engr. Khadeeja Tariq</span>
+  </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Lecture sections">
+  <a href="#recap">1 Recap</a><a href="#why">2 Why</a><a href="#cond">3 Conditions</a><a href="#if">4 if</a><a href="#ifelse">5 if-else</a><a href="#elif">6 elif</a><a href="#nested">7 Nested if</a><a href="#oneline">8 One-line if</a><a href="#match">9 match</a><a href="#for">10 for</a><a href="#range">11 range</a><a href="#iter">12 Iterables</a><a href="#accum">13 Accumulators</a><a href="#while">14 while</a><a href="#digits">15 Digits</a><a href="#choose">16 for or while</a><a href="#jump">17 break/continue/pass</a><a href="#else">18 Loop else</a><a href="#nestloop">19 Nested loops</a><a href="#comp">20 Comprehensions</a><a href="#predict">21 Predict</a><a href="#bugs">22 Bugs</a><a href="#practice">23 Practice</a><a href="#quiz">24 Quiz</a><a href="#wrap">25 Summary</a>
+</nav>
+
+<!-- 1 -->
+<section id="recap">
+  <div class="part">Warm-up</div>
+  <div class="sec-head"><span class="num">01</span><h2>Quick recap: input, int and print</h2></div>
+  <p>Programs need to read information and show results. <code>input()</code> always returns <b>text</b>, so we wrap it in <code>int()</code> or <code>float()</code> when we need a number. <code>print()</code> shows values on screen.</p>
+<div class="cols"><div class="code"><pre class="py">
+name = input(&quot;Your name: &quot;)
+age = int(input(&quot;Your age: &quot;))
+print(&quot;Hello&quot;, name)
+print(&quot;Next year you will be&quot;, age + 1)
+</pre></div><div class="out">Your name: Sara
+Your age: 19
+Hello Sara
+Next year you will be 20</div></div>
+  <p class="note">Below the code you see the output, exactly what the program printed. When the program asks for input, the typed answer is shown after the question.</p>
+  <details class="reveal"><summary>Quick check: what does this print? <code>print(int("7") + 3)</code></summary><div class="body"><div class="out">10</div></div></details>
+</section>
+
+<!-- 2 -->
+<section id="why">
+  <div class="sec-head"><span class="num">02</span><h2>Why do we need control flow?</h2></div>
+  <p>By default Python reads your code <b>top to bottom, one line, one time</b>. That is a robot that can only walk straight. Real programs must <b>choose</b> (is the password right?) and <b>repeat</b> (ask again until it is). Control flow is the set of traffic lights for your program.</p>
+<div class="cols"><div class="code"><pre class="py">
+print(&quot;1. Wake up&quot;)
+print(&quot;2. Have chai&quot;)
+print(&quot;3. Go to class&quot;)
+</pre></div><div class="out">1. Wake up
+2. Have chai
+3. Go to class</div></div>
+  <div class="flow">
+    <div class="step"><b>Sequence</b>do steps in order<br>boil water → add tea → pour</div>
+    <div class="step"><b>Selection (decisions)</b>choose a path<br>if milk is finished → buy milk<br>else → make chai</div>
+    <div class="step"><b>Repetition (loops)</b>do it again<br>stir until the sugar dissolves<br>hand a paper to every student</div>
+  </div>
+  <div class="ask"><b>Ask the class</b>Describe your morning in three sentences: one that is a plain sequence, one that contains a choice, one that repeats. Which Python statement do you think each one needs?</div>
+</section>
+
+<!-- 3 -->
+<section id="cond">
+  <div class="sec-head"><span class="num">03</span><h2>Conditions: questions with a True or False answer</h2></div>
+  <p>Every decision and every loop is controlled by a <b>condition</b>: an expression that becomes <code>True</code> or <code>False</code> (a <b>bool</b>). Conditions are built from comparison operators:</p>
+  <div class="panel tbl">
+    <table>
+      <thead><tr><th>Operator</th><th>Meaning</th><th>Example</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td class="c">==</td><td>equal to</td><td class="c">5 == 5</td><td>True</td></tr>
+        <tr><td class="c">!=</td><td>not equal to</td><td class="c">5 != 3</td><td>True</td></tr>
+        <tr><td class="c">&lt;  &lt;=</td><td>less than, less or equal</td><td class="c">4 &lt;= 4</td><td>True</td></tr>
+        <tr><td class="c">&gt;  &gt;=</td><td>greater than, greater or equal</td><td class="c">3 &gt; 9</td><td>False</td></tr>
+      </tbody>
+    </table>
+  </div>
+<div class="cols"><div class="code"><pre class="py">
+a = 7
+b = 4
+print(a == b)
+print(a != b)
+print(a &gt; b, a &lt;= b)
+</pre></div><div class="out">False
+True
+True False</div></div>
+  <p class="note">Careful: a single <code>=</code> <b>stores</b> a value (<code>x = 5</code>). Double <code>==</code> <b>asks a question</b> (<code>x == 5</code>).</p>
+  <p>Python also allows math-style <b>chained comparisons</b>:</p>
+<div class="cols"><div class="code"><pre class="py">
+score = 85
+print(0 &lt;= score &lt;= 100)
+print(1 &lt; 5 &lt; 3)
+</pre></div><div class="out">True
+False</div></div>
+  <p>To combine conditions we use <b>logical operators</b>. Order of evaluation: <code>not</code>, then <code>and</code>, then <code>or</code>. Use brackets when unsure.</p>
+  <div class="panel tbl">
+    <table>
+      <thead><tr><th>A</th><th>B</th><th>A and B</th><th>A or B</th><th>not A</th></tr></thead>
+      <tbody>
+        <tr><td class="c">True</td><td class="c">True</td><td class="c">True</td><td class="c">True</td><td class="c">False</td></tr>
+        <tr><td class="c">True</td><td class="c">False</td><td class="c">False</td><td class="c">True</td><td class="c">False</td></tr>
+        <tr><td class="c">False</td><td class="c">True</td><td class="c">False</td><td class="c">True</td><td class="c">True</td></tr>
+        <tr><td class="c">False</td><td class="c">False</td><td class="c">False</td><td class="c">False</td><td class="c">True</td></tr>
+      </tbody>
+    </table>
+  </div>
+<div class="cols"><div class="code"><pre class="py">
+age = 20
+has_cnic = True
+print(age &gt;= 18 and has_cnic)
+print(age &lt; 18 or has_cnic)
+print(not has_cnic)
+</pre></div><div class="out">True
+True
+False</div></div>
+  <p>Python also treats other values as True or False when used in a condition. <b>Falsy</b>: <code>0</code>, empty text <code>""</code>, empty list <code>[]</code>, <code>None</code>. Everything else is <b>truthy</b>, even the text <code>"False"</code>.</p>
+<div class="cols"><div class="code"><pre class="py">
+print(bool(0), bool(&quot;&quot;), bool([]), bool(None))
+print(bool(5), bool(-3), bool(&quot;False&quot;), bool([0]))
+</pre></div><div class="out">False False False False
+True True True True</div></div>
+  <div class="ask"><b>Ask the class</b>Without running it: what is <code>not True or True</code>? (Hint: <code>not</code> goes first.)</div>
+  <details class="reveal"><summary>Reveal</summary><div class="body"><div class="out">True</div><p class="note">(not True) or True = False or True = True.</p></div></details>
+</section>
+
+<!-- 4 -->
+<section id="if">
+  <div class="part">Part 1 · Decisions</div>
+  <div class="sec-head"><span class="num">04</span><h2>The if statement</h2></div>
+  <p>The <code>if</code> statement runs a block of code <b>only when</b> its condition is True and skips it otherwise. For example, a website should open its content only if the user's age is 18 or above.</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+if condition:
+    # indented block: runs only when condition is True
+    statement_1
+    statement_2
+# this line is not indented, so it runs every time
+</pre></div></div>
+  <div class="legend">
+    <div><b>condition</b> any expression that is True or False, like <code>age &gt;= 18</code></div>
+    <div><b>colon :</b> compulsory at the end of the <code>if</code> line</div>
+    <div><b>indentation</b> 4 spaces: everything indented belongs to the <code>if</code></div>
+  </div>
+<div class="cols"><div class="code"><pre class="py">
+age = int(input(&quot;Enter your age: &quot;))
+
+# Check if age is 18 or more
+if age &gt;= 18:
+    print(&quot;Grant access to the website.&quot;)
+
+print(&quot;Program complete.&quot;)
+</pre></div><div class="outs"><div class="out" data-l="OUTPUT · run 1">Enter your age: 22
+Grant access to the website.
+Program complete.</div><div class="out" data-l="OUTPUT · run 2">Enter your age: 17
+Program complete.</div></div></div>
+  <p>Notice that <i>Program complete.</i> is not indented, so it prints in both runs. A block can contain many statements; they must all use the same indentation:</p>
+<div class="cols"><div class="code"><pre class="py">
+age = 20
+if age &gt;= 18:
+    print(&quot;You are an adult&quot;)
+    print(&quot;You can vote&quot;)
+    print(&quot;You have full legal rights&quot;)
+</pre></div><div class="out">You are an adult
+You can vote
+You have full legal rights</div></div>
+  <p>A True/False variable can be used directly as the condition. No <code>== True</code> is needed:</p>
+<div class="cols"><div class="code"><pre class="py">
+is_logged_in = True
+if is_logged_in:
+    print(&quot;Welcome back!&quot;)
+</pre></div><div class="out">Welcome back!</div></div>
+  <p>Now the most common beginner error. Forget the indentation and Python refuses to run the program:</p>
+<div class="cols"><div class="code"><pre class="py">
+age = 20
+if age &gt;= 18:
+print(&quot;Grant access&quot;)
+</pre></div><div class="out err">IndentationError: expected an indented block after &#x27;if&#x27; statement on line 2</div></div>
+  <p class="note">Python reads this as an <code>if</code> with an empty body. Errors are clues, not insults: the message tells you the line and what it expected.</p>
+  <div class="ask"><b>Ask the class</b>Change <code>&gt;=</code> to <code>&gt;</code> in the first program and enter exactly 18. Who is now locked out of the website?</div>
+</section>
+
+<!-- 5 -->
+<section id="ifelse">
+  <div class="sec-head"><span class="num">05</span><h2>if … else: two roads</h2></div>
+  <p>An <code>else</code> gives the program a second road for when the condition is False. Exactly one of the two blocks runs, never both, never none.</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+if condition:
+    # runs when condition is True
+else:
+    # runs when condition is False
+</pre></div></div>
+  <div class="legend">
+    <div><b>else</b> has <b>no condition</b> of its own: it catches everything the <code>if</code> did not</div>
+    <div><b>else:</b> needs its own colon and is aligned exactly under its <code>if</code></div>
+  </div>
+<div class="cols"><div class="code"><pre class="py">
+age = int(input(&quot;Enter your age: &quot;))
+
+if age &gt;= 18:
+    print(&quot;Grant access.&quot;)
+else:
+    print(&quot;Deny access.&quot;)
+</pre></div><div class="outs"><div class="out" data-l="OUTPUT · run 1">Enter your age: 22
+Grant access.</div><div class="out" data-l="OUTPUT · run 2">Enter your age: 16
+Deny access.</div></div></div>
+  <p>Combining two checks with <code>and</code>, a real login rule (the stored username and password sit in variables, like a tiny database):</p>
+<div class="cols"><div class="code"><pre class="py">
+username_db = &quot;admin&quot;
+password_db = &quot;sparrow@123&quot;
+
+username = input(&quot;Enter username: &quot;)
+password = input(&quot;Enter password: &quot;)
+
+if (username == username_db) and (password == password_db):
+    print(&quot;Welcome back.&quot;)
+else:
+    print(&quot;Access denied.&quot;)
+</pre></div><div class="outs"><div class="out" data-l="OUTPUT · run 1">Enter username: admin
+Enter password: sparrow@123
+Welcome back.</div><div class="out" data-l="OUTPUT · run 2">Enter username: admin
+Enter password: wrong
+Access denied.</div></div></div>
+  <p>The remainder operator <code>%</code> gives a tidy even/odd test: an even number leaves remainder 0 when divided by 2.</p>
+<div class="cols"><div class="code"><pre class="py">
+number = int(input(&quot;Enter a number: &quot;))
+
+if number % 2 == 0:
+    print(&quot;The number is even&quot;)
+else:
+    print(&quot;The number is odd&quot;)
+</pre></div><div class="outs"><div class="out" data-l="OUTPUT · run 1">Enter a number: 8
+The number is even</div><div class="out" data-l="OUTPUT · run 2">Enter a number: 7
+The number is odd</div></div></div>
+</section>
+
+<!-- 6 -->
+<section id="elif">
+  <div class="sec-head"><span class="num">06</span><h2>elif: many roads</h2></div>
+  <p>With more than two choices we add <code>elif</code> (short for “else if”) steps. Python checks the conditions <b>from top to bottom</b> and runs only the <b>first</b> block whose condition is True. After that it skips the rest of the ladder.</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+if condition1:
+    # runs if condition1 is True
+elif condition2:
+    # runs if condition1 is False and condition2 is True
+elif condition3:
+    # you may write as many elif steps as you need
+else:
+    # runs if none of the conditions was True (optional)
+</pre></div></div>
+  <div class="legend">
+    <div><b>one if</b> at the start, <b>one else</b> at the very end</div>
+    <div><b>many elif</b> in between, each with its own condition</div>
+    <div><b>else is optional</b>: a ladder may end with an <code>elif</code></div>
+    <div><b>order matters</b>: first True wins</div>
+  </div>
+<div class="cols"><div class="code"><pre class="py">
+marks = int(input(&quot;Enter marks (0-100): &quot;))
+
+if marks &lt; 0 or marks &gt; 100:
+    print(&quot;Invalid input&quot;)
+elif marks &lt; 40:
+    print(&quot;Fail&quot;)
+elif marks &lt;= 60:
+    print(&quot;Pass&quot;)
+elif marks &lt;= 80:
+    print(&quot;First class&quot;)
+else:
+    print(&quot;First class with distinction&quot;)
+</pre></div><div class="outs"><div class="out" data-l="OUTPUT · run 1">Enter marks (0-100): 85
+First class with distinction</div><div class="out" data-l="OUTPUT · run 2">Enter marks (0-100): 55
+Pass</div><div class="out" data-l="OUTPUT · run 3">Enter marks (0-100): 150
+Invalid input</div></div></div>
+  <p>Try it yourself in the lab. Type any mark and watch which step of the ladder fires. Green is the winner, pale steps were checked and skipped, faded steps were never even looked at.</p>
+  <div class="panel" id="decLab">
+    <div class="form"><label for="dl-marks">marks<input id="dl-marks" type="number" value="85"></label></div>
+    <div class="rungs" id="dlRungs"></div>
+    <div class="out" id="dlOut"></div>
+  </div>
+  <p>Another ladder that classifies a temperature. Pick your own boundaries and wording:</p>
+<div class="cols"><div class="code"><pre class="py">
+temp = int(input(&quot;Temperature in C: &quot;))
+
+if temp &lt;= 5:
+    print(&quot;Freezing&quot;)
+elif temp &lt;= 15:
+    print(&quot;Cool&quot;)
+elif temp &lt;= 30:
+    print(&quot;Pleasant&quot;)
+elif temp &lt;= 40:
+    print(&quot;Hot&quot;)
+else:
+    print(&quot;Too hot to handle&quot;)
+</pre></div><div class="outs"><div class="out" data-l="OUTPUT · run 1">Temperature in C: 35
+Hot</div><div class="out" data-l="OUTPUT · run 2">Temperature in C: 3
+Freezing</div></div></div>
+  <p>A ladder does not need a final <code>else</code>. If nothing matches, nothing happens:</p>
+<div class="cols"><div class="code"><pre class="py">
+score = 75
+
+if score &gt;= 90:
+    print(&quot;Grade: A&quot;)
+elif score &gt;= 80:
+    print(&quot;Grade: B&quot;)
+elif score &gt;= 70:
+    print(&quot;Grade: C&quot;)
+elif score &gt;= 60:
+    print(&quot;Grade: D&quot;)
+</pre></div><div class="out">Grade: C</div></div>
+  <div class="ask"><b>Ask the class</b>Why did we not need to write <code>score &lt; 90 and score &gt;= 80</code> for the B grade?</div>
+  <details class="reveal"><summary>Reveal</summary><div class="body"><p>Because the <code>A</code> test already caught every score of 90 or more. When Python reaches the B test, the score is known to be below 90. Each rung only needs one boundary.</p></div></details>
+</section>
+
+<!-- 7 -->
+<section id="nested">
+  <div class="sec-head"><span class="num">07</span><h2>Nested if: a decision inside a decision</h2></div>
+  <p>An <code>if</code> can sit inside another <code>if</code>. The inner question is asked <b>only if</b> the outer one passed.</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+if outer_condition:
+    # outer block
+    if inner_condition:
+        # runs only if BOTH conditions are True
+    else:
+        # outer True, inner False
+else:
+    # outer condition False
+</pre></div></div>
+  <p>Positive or not, and if positive, even or odd (<code>end=" "</code> keeps the next print on the same line):</p>
+<div class="cols"><div class="code"><pre class="py">
+num = int(input(&quot;Enter a number: &quot;))
+
+if num &gt; 0:
+    print(&quot;positive&quot;, end=&quot; &quot;)
+    if num % 2 == 0:
+        print(&quot;and even&quot;)
+    else:
+        print(&quot;and odd&quot;)
+else:
+    print(&quot;not positive&quot;)
+</pre></div><div class="outs"><div class="out" data-l="OUTPUT · run 1">Enter a number: 7
+positive and odd</div><div class="out" data-l="OUTPUT · run 2">Enter a number: -2
+not positive</div></div></div>
+<div class="cols"><div class="code"><pre class="py">
+age = 25
+has_license = True
+
+if age &gt;= 18:
+    if has_license:
+        print(&quot;You can drive&quot;)
+    else:
+        print(&quot;You need a license&quot;)
+else:
+    print(&quot;You are too young to drive&quot;)
+</pre></div><div class="out">You can drive</div></div>
+  <p>You can nest as deep as you like, but three levels is already hard to read:</p>
+<div class="cols"><div class="code"><pre class="py">
+score = 85
+attendance = 90
+submitted = True
+
+if score &gt;= 60:
+    if attendance &gt;= 80:
+        if submitted:
+            print(&quot;Pass with good standing&quot;)
+        else:
+            print(&quot;Pass but missing assignment&quot;)
+    else:
+        print(&quot;Pass but low attendance&quot;)
+else:
+    print(&quot;Fail&quot;)
+</pre></div><div class="out">Pass with good standing</div></div>
+  <p>When the inner test only adds one more condition, <code>and</code> says the same thing more simply. Both programs print the same message:</p>
+<div class="cols"><div class="code"><pre class="py">
+temperature = 25
+is_sunny = True
+
+# nested version
+if temperature &gt; 20:
+    if is_sunny:
+        print(&quot;Perfect beach weather!&quot;)
+
+# flat version with and
+if temperature &gt; 20 and is_sunny:
+    print(&quot;Perfect beach weather!&quot;)
+</pre></div><div class="out">Perfect beach weather!
+Perfect beach weather!</div></div>
+  <p class="note">Rule of thumb: use <code>and</code> when both checks are equal partners. Nest when the inner question only makes sense after the outer one passed, or when each case needs a different message.</p>
+</section>
+
+<!-- 8 -->
+<section id="oneline">
+  <div class="sec-head"><span class="num">08</span><h2>One-line if (short-hand and ternary)</h2></div>
+  <p>Two compact forms exist. The first runs one statement on the same line as the <code>if</code>. The second, the <b>conditional expression</b> (also called the ternary operator), <b>chooses a value</b>.</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+if condition: statement                                  # short-hand if
+
+variable = value_if_true if condition else value_if_false   # ternary
+</pre></div></div>
+<div class="cols"><div class="code"><pre class="py">
+a = 5
+b = 2
+if a &gt; b: print(&quot;a is greater than b&quot;)
+
+age = 22
+status = &quot;Adult&quot; if age &gt;= 18 else &quot;Minor&quot;
+print(status)
+</pre></div><div class="out">a is greater than b
+Adult</div></div>
+  <p>Practical uses: pick the bigger number, or supply a default when something is empty (an empty text is falsy):</p>
+<div class="cols"><div class="code"><pre class="py">
+x = 15
+y = 20
+max_value = x if x &gt; y else y
+print(&quot;Maximum value:&quot;, max_value)
+
+username = &quot;&quot;
+display_name = username if username else &quot;Guest&quot;
+print(&quot;Welcome,&quot;, display_name)
+</pre></div><div class="out">Maximum value: 20
+Welcome, Guest</div></div>
+  <p>You can even chain them, but this is where readability starts to suffer:</p>
+<div class="cols"><div class="code"><pre class="py">
+a = 330
+b = 330
+print(&quot;A&quot;) if a &gt; b else print(&quot;=&quot;) if a == b else print(&quot;B&quot;)
+</pre></div><div class="out">=</div></div>
+  <p class="note">Use these forms when the condition and the actions are simple. For anything longer, write the normal multi-line <code>if</code>.</p>
+</section>
+
+<!-- 9 -->
+<section id="match">
+  <div class="sec-head"><span class="num">09</span><h2>match-case: Python's switch</h2></div>
+  <p>When you compare <b>one value</b> against many exact options, <code>match</code> is cleaner than a long <code>elif</code> ladder. It needs Python 3.10 or newer.</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+match expression:
+    case value1:
+        # runs if expression == value1
+    case value2 | value3:
+        # | means &quot;or&quot;: value2 or value3
+    case _:
+        # default: matches anything not matched above
+</pre></div></div>
+  <div class="legend">
+    <div><b>match</b> evaluates the expression only once</div>
+    <div><b>case</b> compares it with each pattern from the top; first match runs</div>
+    <div><b>_</b> (underscore) is the catch-all, so it must be last</div>
+  </div>
+<div class="cols"><div class="code"><pre class="py">
+day = int(input(&quot;Enter day number (1-7): &quot;))
+
+match day:
+    case 1: print(&quot;Monday&quot;)
+    case 2: print(&quot;Tuesday&quot;)
+    case 3: print(&quot;Wednesday&quot;)
+    case 4: print(&quot;Thursday&quot;)
+    case 5: print(&quot;Friday&quot;)
+    case 6: print(&quot;Saturday&quot;)
+    case 7: print(&quot;Sunday&quot;)
+    case _: print(&quot;Invalid day&quot;)
+</pre></div><div class="outs"><div class="out" data-l="OUTPUT · run 1">Enter day number (1-7): 4
+Thursday</div><div class="out" data-l="OUTPUT · run 2">Enter day number (1-7): 9
+Invalid day</div></div></div>
+  <p>The pipe <code>|</code> groups several values into one case. A menu with text choices:</p>
+<div class="cols"><div class="code"><pre class="py">
+choice = input(&quot;Menu: a) Tea  b) Coffee  c) Juice : &quot;).lower()
+
+match choice:
+    case &quot;a&quot;: print(&quot;One tea coming up&quot;)
+    case &quot;b&quot;: print(&quot;Strong coffee for you&quot;)
+    case &quot;c&quot;: print(&quot;Fresh juice&quot;)
+    case _: print(&quot;Sorry, not on the menu&quot;)
+</pre></div><div class="outs"><div class="out" data-l="OUTPUT · run 1">Menu: a) Tea  b) Coffee  c) Juice : B
+Strong coffee for you</div><div class="out" data-l="OUTPUT · run 2">Menu: a) Tea  b) Coffee  c) Juice : z
+Sorry, not on the menu</div></div></div>
+<div class="cols"><div class="code"><pre class="py">
+day = 6
+match day:
+    case 1 | 2 | 3 | 4 | 5:
+        print(&quot;Today is a weekday&quot;)
+    case 6 | 7:
+        print(&quot;I love weekends!&quot;)
+</pre></div><div class="out">I love weekends!</div></div>
+  <p>A case can also carry an extra <b>guard</b>: an <code>if</code> that must be true as well.</p>
+<div class="cols"><div class="code"><pre class="py">
+month = 5
+day = 4
+match day:
+    case 1 | 2 | 3 | 4 | 5 if month == 4:
+        print(&quot;A weekday in April&quot;)
+    case 1 | 2 | 3 | 4 | 5 if month == 5:
+        print(&quot;A weekday in May&quot;)
+    case _:
+        print(&quot;No match&quot;)
+</pre></div><div class="out">A weekday in May</div></div>
+</section>
+
+<!-- 10 -->
+<section id="for">
+  <div class="part">Part 2 · Loops</div>
+  <div class="sec-head"><span class="num">10</span><h2>The for loop</h2></div>
+  <p>A loop repeats a block of code. The <code>for</code> loop is used to go through an <b>iterable</b>: a list, a text, a tuple, a dictionary, a range of numbers. Read it as: <i>for each item in the group, run this block</i>.</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+for item in iterable:
+    # loop body (indented): runs once for every item
+    statement_1
+    statement_2
+# not indented: runs once, after the loop has finished
+</pre></div></div>
+  <div class="legend">
+    <div><b>item</b> the loop variable: you choose its name, it takes each value in turn</div>
+    <div><b>iterable</b> list, text, tuple, set, dictionary, range(), file …</div>
+    <div><b>colon and indentation</b> exactly as with <code>if</code></div>
+    <div><b>no counter needed</b>: Python moves to the next item by itself</div>
+  </div>
+<div class="cols"><div class="code"><pre class="py">
+# A list of three AI models
+models = [&quot;Fable&quot;, &quot;ChatGPT&quot;, &quot;Gemini&quot;]
+
+# Access items of the list one by one
+for model in models:
+    print(model)
+    print(&quot;---&quot;)
+</pre></div><div class="out">Fable
+---
+ChatGPT
+---
+Gemini
+---</div></div>
+  <p>In round 1 the variable <code>model</code> is <code>"Fable"</code>, in round 2 <code>"ChatGPT"</code>, in round 3 <code>"Gemini"</code>. Only <b>indented</b> lines belong to the loop:</p>
+<div class="cols"><div class="code"><pre class="py">
+numbers = [1, 2, 3]
+
+for num in numbers:
+    print(f&quot;Processing: {num}&quot;)
+    print(f&quot;Done with: {num}&quot;)
+
+# This statement is outside the loop
+print(&quot;All done&quot;)
+</pre></div><div class="out">Processing: 1
+Done with: 1
+Processing: 2
+Done with: 2
+Processing: 3
+Done with: 3
+All done</div></div>
+  <p>Text is iterable too: you get one character at a time.</p>
+<div class="cols"><div class="code"><pre class="py">
+language = &quot;Python&quot;
+
+for x in language:
+    print(x)
+</pre></div><div class="out">P
+y
+t
+h
+o
+n</div></div>
+  <p>Now watch a loop run one step at a time. The yellow line is the one Python is executing and the boxes show the variables:</p>
+  <div class="panel">
+    <div class="stepper">
+      <div class="code"><pre id="stepCode"></pre></div>
+      <div class="explain">
+        <div class="stepno" id="stepNo"></div>
+        <p id="stepText"></p>
+        <div>
+          <div class="note" style="font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em">VARIABLES</div>
+          <div class="mem" id="stepMem"></div>
+        </div>
+        <div class="out" id="stepOut"></div>
+        <div class="ctrl">
+          <button class="btn ghost" id="stepPrev" type="button">← Back</button>
+          <button class="btn" id="stepNext" type="button">Next step →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ask"><b>Ask the class</b>In the trace, how many times does the line <code>total += i</code> run? And how many times does <code>print("Done", total)</code> run? Why the difference?</div>
+</section>
+
+<!-- 11 -->
+<section id="range">
+  <div class="sec-head"><span class="num">11</span><h2>range(): the number machine</h2></div>
+  <p>To repeat something a certain number of times (like 10) we loop over <code>range()</code>, a function that produces a sequence of numbers. Syntax first:</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+range(stop)                  # 0, 1, 2 ... stop-1
+range(start, stop)           # start, start+1 ... stop-1
+range(start, stop, step)     # start, start+step ... (stop is never reached)
+
+for i in range(start, stop, step):
+    # body runs once for every number produced
+</pre></div></div>
+  <div class="legend">
+    <div><b>start</b> first number (default 0)</div>
+    <div><b>stop</b> the limit: <b>never included</b></div>
+    <div><b>step</b> jump size (default 1); negative counts down</div>
+    <div><b>zero-based</b>: <code>range(6)</code> gives 0 to 5, six numbers</div>
+  </div>
+<div class="cols"><div class="code"><pre class="py">
+print(list(range(5)))
+print(list(range(1, 11)))
+print(list(range(10, 0, -1)))
+print(list(range(2, 21, 2)))    # even numbers
+print(list(range(1, 20, 2)))    # odd numbers
+</pre></div><div class="out">[0, 1, 2, 3, 4]
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+[10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+[2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+[1, 3, 5, 7, 9, 11, 13, 15, 17, 19]</div></div>
+  <p class="note"><code>list(...)</code> is only used here to display the numbers. In a loop you write <code>for i in range(...)</code> directly. In Python 3, <code>range</code> is lazy: it makes one number at a time, so even <code>range(1000000)</code> is cheap.</p>
+  <h3>Range Lab</h3>
+  <p>Choose start, stop and step, and see exactly which numbers the loop would visit.</p>
+  <div class="panel" id="rangeLab">
+    <div class="form">
+      <label for="rl-start">start<input id="rl-start" type="number" value="1"></label>
+      <label for="rl-stop">stop<input id="rl-stop" type="number" value="10"></label>
+      <label for="rl-step">step<input id="rl-step" type="number" value="2"></label>
+    </div>
+    <div class="ctrl"><button class="btn ghost" type="button" data-p="0,5,1">range(5)</button><button class="btn ghost" type="button" data-p="1,11,1">1 to 10</button><button class="btn ghost" type="button" data-p="10,0,-1">countdown</button><button class="btn ghost" type="button" data-p="5,5,1">empty!</button></div>
+    <div class="pyline" id="rlLine"></div>
+    <div class="chips" id="rlChips"></div>
+    <div class="score" id="rlCount"></div>
+  </div>
+  <p>Using range in loops:</p>
+<div class="cols"><div class="code"><pre class="py">
+# Iterate from i = 1 to i = 5
+for i in range(1, 6):
+    print(f&quot;Displaying product {i}&quot;)
+
+for j in range(10, 0, -1):
+    print(j, end=&quot; &quot;)
+print(&quot;Liftoff!&quot;)
+</pre></div><div class="out">Displaying product 1
+Displaying product 2
+Displaying product 3
+Displaying product 4
+Displaying product 5
+10 9 8 7 6 5 4 3 2 1 Liftoff!</div></div>
+  <p>If you do not need the counter itself, the underscore <code>_</code> tells the reader “I only want to repeat”:</p>
+<div class="cols"><div class="code"><pre class="py">
+for _ in range(4):
+    print(&quot;Hi&quot;)
+</pre></div><div class="out">Hi
+Hi
+Hi
+Hi</div></div>
+  <div class="ask"><b>Ask the class</b>Which <code>range(...)</code> prints the multiples of 5 from 5 to 50 inclusive?</div>
+  <details class="reveal"><summary>Reveal</summary><div class="body"><div class="code"><pre class="py">
+for n in range(5, 51, 5):
+    print(n, end=" ")
+</pre></div><div class="out">5 10 15 20 25 30 35 40 45 50</div><p class="note">Stop is 51 because 50 must be included.</p></div></details>
+</section>
+
+<!-- 12 -->
+<section id="iter">
+  <div class="sec-head"><span class="num">12</span><h2>Looping over anything</h2></div>
+  <p>The same <code>for</code> works on every kind of collection. Three handy variations first, then examples:</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+for index, item in enumerate(iterable):          # index AND value
+for key, value in dictionary.items():            # both parts of a dictionary
+for i in range(len(sequence)):                   # loop by position, use sequence[i]
+</pre></div></div>
+<div class="cols"><div class="code"><pre class="py">
+habits = [&quot;eat&quot;, &quot;sleep&quot;, &quot;repeat&quot;]
+
+for i, habit in enumerate(habits):
+    print(i, habit)
+
+print(&quot;--- counting from 1 ---&quot;)
+for n, habit in enumerate(habits, start=1):
+    print(n, habit)
+</pre></div><div class="out">0 eat
+1 sleep
+2 repeat
+--- counting from 1 ---
+1 eat
+2 sleep
+3 repeat</div></div>
+<div class="cols"><div class="code"><pre class="py">
+scores = {&quot;Ali&quot;: 80, &quot;Sara&quot;: 92}
+
+for name, score in scores.items():
+    print(name, &quot;-&gt;&quot;, score)
+</pre></div><div class="out">Ali -&gt; 80
+Sara -&gt; 92</div></div>
+<div class="cols"><div class="code"><pre class="py">
+a = [&quot;geeks&quot;, &quot;for&quot;, &quot;geeks&quot;]
+
+for idx in range(len(a)):
+    print(idx, a[idx])
+</pre></div><div class="out">0 geeks
+1 for
+2 geeks</div></div>
+  <p>Tuples are looped exactly like lists. Sets also work, but a set has <b>no guaranteed order</b>:</p>
+<div class="cols"><div class="code"><pre class="py">
+my_tuple = (1, &quot;apple&quot;, 3.14)
+for item in my_tuple:
+    print(item)
+
+my_set = {10, 20, 30}
+for element in my_set:
+    print(element)
+</pre></div><div class="out">1
+apple
+3.14
+10
+20
+30</div></div>
+  <p>Lists inside lists need a loop inside a loop (we study nested loops in section 19). A first look:</p>
+<div class="cols"><div class="code"><pre class="py">
+nested_list = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+for inner_list in nested_list:
+    for item in inner_list:
+        print(item, end=&quot; &quot;)
+    print()
+</pre></div><div class="out">1 2 3 
+4 5 6 
+7 8 9 </div></div>
+  <p>Files are iterable line by line. Do not worry about the <code>with</code> part yet (files are a later topic); just notice the <code>for</code>:</p>
+<div class="cols"><div class="code"><pre class="py">
+with open(&quot;notes.txt&quot;, &quot;w&quot;) as f:
+    f.write(&quot;line one\nline two\nline three\n&quot;)
+
+with open(&quot;notes.txt&quot;) as f:
+    for line in f:
+        print(line, end=&quot;&quot;)
+</pre></div><div class="out">line one
+line two
+line three</div></div>
+  <details class="reveal"><summary>Bonus for the curious: generators</summary><div class="body">
+    <p>A generator makes its values one by one with <code>yield</code> and a <code>for</code> loop collects them. Libraries such as NumPy and Pandas offer many more iterables for data work.</p>
+<div class="cols"><div class="code"><pre class="py">
+def count_down(n):
+    while n &gt; 0:
+        yield n
+        n -= 1
+
+for i in count_down(5):
+    print(i, end=&quot; &quot;)
+</pre></div><div class="out">5 4 3 2 1 </div></div>
+  </div></details>
+</section>
+
+<!-- 13 -->
+<section id="accum">
+  <div class="sec-head"><span class="num">13</span><h2>The accumulator pattern</h2></div>
+  <p>Many loops build up one answer: a total, a product, a count, the biggest value so far. Recipe: <b>(1)</b> create a variable before the loop, <b>(2)</b> update it inside the loop, <b>(3)</b> use it after the loop.</p>
+<div class="cols"><div class="code"><pre class="py">
+# Initial value of total is 0
+total = 0
+
+for i in range(1, 11):
+    total += i                       # add i in each round
+    print(&quot;after adding&quot;, i, &quot;total =&quot;, total)
+
+print(f&quot;Total = {total}&quot;)
+</pre></div><div class="out">after adding 1 total = 1
+after adding 2 total = 3
+after adding 3 total = 6
+after adding 4 total = 10
+after adding 5 total = 15
+after adding 6 total = 21
+after adding 7 total = 28
+after adding 8 total = 36
+after adding 9 total = 45
+after adding 10 total = 55
+Total = 55</div></div>
+  <p>The same idea with user input, summing every number from a start to an end value:</p>
+<div class="cols"><div class="code"><pre class="py">
+start = int(input(&quot;Starting number: &quot;))
+end = int(input(&quot;Ending number: &quot;))
+
+total = 0
+for k in range(start, end + 1):
+    total += k
+print(&quot;The sum of the numbers from&quot;, start, &quot;to&quot;, end, &quot;is&quot;, total)
+</pre></div><div class="out">Starting number: 3
+Ending number: 6
+The sum of the numbers from 3 to 6 is 18</div></div>
+  <p class="note">Do not name a variable <code>sum</code>: it hides Python's built-in <code>sum()</code> function. We use <code>total</code>.</p>
+  <p>Other accumulators: multiply (start at 1), count matches (start at 0), track the largest (start with the first item).</p>
+<div class="cols"><div class="code"><pre class="py">
+product = 1
+for n in range(1, 6):
+    product *= n
+print(&quot;5! =&quot;, product)
+
+count = 0
+for ch in &quot;education&quot;:
+    if ch in &quot;aeiou&quot;:
+        count += 1
+print(&quot;vowels:&quot;, count)
+
+numbers = [4, 17, 9, 23, 8]
+largest = numbers[0]
+for n in numbers:
+    if n &gt; largest:
+        largest = n
+print(&quot;largest:&quot;, largest)
+</pre></div><div class="out">5! = 120
+vowels: 5
+largest: 23</div></div>
+</section>
+
+<!-- 14 -->
+<section id="while">
+  <div class="sec-head"><span class="num">14</span><h2>The while loop</h2></div>
+  <p>A <code>while</code> loop repeats <b>as long as</b> its condition stays True. Use it when you do not know in advance how many rounds are needed: “keep going <i>until</i> something changes”.</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+initialize_variable              # 1. give the condition something to test
+while condition:                 # 2. checked BEFORE every round
+    # loop body (indented): runs while condition is True
+    update_variable              # 3. change something, or it never stops
+# not indented: runs once, after condition becomes False
+</pre></div></div>
+  <div class="legend">
+    <div><b>start value</b> must exist before the loop</div>
+    <div><b>condition</b> if False the very first time, the body never runs</div>
+    <div><b>update</b> inside the body, in the right direction</div>
+    <div><b>stops</b> only when the condition becomes False</div>
+  </div>
+<div class="cols"><div class="code"><pre class="py">
+i = 1
+while i &lt;= 10:
+    print(i, end=&quot; &quot;)
+    i += 1
+print()
+
+j = 10
+while j &gt;= 1:
+    print(j, end=&quot; &quot;)
+    j -= 1
+print(&quot;Liftoff!&quot;)
+</pre></div><div class="out">1 2 3 4 5 6 7 8 9 10 
+10 9 8 7 6 5 4 3 2 1 Liftoff!</div></div>
+  <p>The first loop is a counting loop, which a <code>for</code> would write more simply. Both versions are equivalent:</p>
+<div class="cols"><div class="code"><pre class="py">
+n = 10
+for i in range(1, n + 1):
+    print(i, end=&quot; &quot;)
+</pre></div><div class="out">1 2 3 4 5 6 7 8 9 10 </div></div>
+  <h3>The infinite loop</h3>
+  <p>If the condition never becomes False, the loop never stops. This program does <b>not</b> change <code>number</code> inside the loop, so <code>number &gt;= 0.0</code> stays True forever. Do not run it!</p>
+<div class="cols"><div class="code"><pre class="py">
+number = float(input(&quot;Enter a number: &quot;))
+
+while number &gt;= 0.0:
+    print(number)
+</pre></div><div class="out" data-l="OUTPUT · never stops">12.0
+12.0
+12.0
+12.0
+... (never stops)</div></div>
+  <p>Fix: ask for a new number <b>inside</b> the loop, so the condition can change:</p>
+<div class="cols"><div class="code"><pre class="py">
+number = float(input(&quot;Enter a number: &quot;))
+
+while number &gt;= 0.0:
+    print(number)
+
+    # Take number input again
+    number = float(input(&quot;Enter another number: &quot;))
+</pre></div><div class="out">Enter a number: 12.0
+12.0
+Enter another number: 5.5
+5.5
+Enter another number: -2.1</div></div>
+  <p class="note">If you ever start an infinite loop on your own computer, press <b>Ctrl + C</b> in the terminal, or the Stop button in IDLE or Thonny.</p>
+  <p>The same “ask again” shape is great for <b>stop signals</b> (also called sentinels). Stop when the user types <code>q</code>:</p>
+<div class="cols"><div class="code"><pre class="py">
+task = input(&quot;Task: &quot;)
+
+while task != &quot;q&quot;:
+    print(&quot;Task done!&quot;)
+    task = input(&quot;Task: &quot;)
+
+# This statement is outside the loop
+print(&quot;All tasks completed&quot;)
+</pre></div><div class="out">Task: Cooking
+Task done!
+Task: Cleaning
+Task done!
+Task: q
+All tasks completed</div></div>
+  <p>Add numbers until the user enters 0, then show the total:</p>
+<div class="cols"><div class="code"><pre class="py">
+total = 0
+n = float(input(&quot;Enter a number (0 to stop): &quot;))
+
+while n != 0.0:
+    total += n
+    n = float(input(&quot;Enter a number (0 to stop): &quot;))
+
+print(f&quot;Sum: {total}&quot;)
+</pre></div><div class="out">Enter a number (0 to stop): 12.5
+Enter a number (0 to stop): 11
+Enter a number (0 to stop): 10
+Enter a number (0 to stop): 0
+Sum: 33.5</div></div>
+  <p>Another popular shape is <code>while True</code>: an intentionally endless loop that you leave with <code>break</code> (section 17):</p>
+<div class="cols"><div class="code"><pre class="py">
+while True:
+    number = int(input(&quot;Enter a number: &quot;))
+    if number == 0:
+        break
+    print(number)
+</pre></div><div class="out">Enter a number: 12
+12
+Enter a number: 5
+5
+Enter a number: 0</div></div>
+  <div class="ask"><b>Ask the class</b>What happens if the condition is False from the very beginning, for example <code>i = 20</code> and <code>while i &lt;= 10:</code>? Does the body run once, or not at all?</div>
+  <details class="reveal"><summary>Reveal</summary><div class="body"><p>Not at all. A <code>while</code> loop tests the condition <b>before</b> the first round.</p></div></details>
+</section>
+
+<!-- 15 -->
+<section id="digits">
+  <div class="sec-head"><span class="num">15</span><h2>Digit detective: while with % and //</h2></div>
+  <p>How do you work on the digits of a number? Two operators are the key: <code>n % 10</code> gives the <b>last digit</b>, and <code>n // 10</code> <b>chops it off</b>. Repeat while something is left (<code>temp &gt; 0</code>). The number of rounds depends on the number, which is exactly why this is a <code>while</code> job.</p>
+<div class="cols"><div class="code"><pre class="py">
+n = 1234
+temp = n            # work on a copy, so n stays safe
+count = 0
+reverse = 0
+digit_sum = 0
+
+while temp &gt; 0:
+    digit = temp % 10
+    count += 1
+    digit_sum += digit
+    reverse = reverse * 10 + digit
+    temp //= 10
+
+print(&quot;Digits:&quot;, count)
+print(&quot;Reverse:&quot;, reverse)
+print(&quot;Digit sum:&quot;, digit_sum)
+</pre></div><div class="out">Digits: 4
+Reverse: 4321
+Digit sum: 10</div></div>
+  <div class="panel tbl">
+    <table>
+      <thead><tr><th>temp</th><th>digit = temp % 10</th><th>reverse so far</th><th>digit_sum so far</th></tr></thead>
+      <tbody>
+        <tr><td class="c">1234</td><td class="c">4</td><td class="c">4</td><td class="c">4</td></tr>
+        <tr><td class="c">123</td><td class="c">3</td><td class="c">43</td><td class="c">7</td></tr>
+        <tr><td class="c">12</td><td class="c">2</td><td class="c">432</td><td class="c">9</td></tr>
+        <tr><td class="c">1</td><td class="c">1</td><td class="c">4321</td><td class="c">10</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The same technique with a number typed by the user, counting its digits:</p>
+<div class="cols"><div class="code"><pre class="py">
+num = int(input(&quot;Enter the number: &quot;))
+count = 0
+
+while num &gt; 0:
+    count += 1
+    num = num // 10
+
+print(&quot;The count is:&quot;, count)
+</pre></div><div class="out">Enter the number: 90817
+The count is: 5</div></div>
+  <div class="ask"><b>Ask the class</b>This counting program changes <code>num</code> itself. What would the program print for the digit count of <code>0</code>? Why?</div>
+  <details class="reveal"><summary>Reveal</summary><div class="body"><div class="out">The count is: 0</div><p class="note">The condition <code>num &gt; 0</code> is False at the start, so the body never runs. Zero has one digit really, so a production program would handle 0 separately.</p></div></details>
+</section>
+
+<!-- 16 -->
+<section id="choose">
+  <div class="sec-head"><span class="num">16</span><h2>Game: for or while?</h2></div>
+  <p>Think of it this way: <b>for</b> = “for every thing in this group”. <b>while</b> = “keep going until something changes”. Decide which loop fits each situation.</p>
+  <div class="panel">
+    <div class="tabs" id="sortTabs" role="group" aria-label="Choose a set"></div>
+    <div class="sort-list" id="sortList"></div>
+    <div class="ctrl"><span class="score" id="sortScore"></span><button class="btn ghost" id="sortReset" type="button">Reset</button></div>
+  </div>
+  <div class="panel tbl">
+    <table>
+      <thead><tr><th></th><th>for</th><th>while</th></tr></thead>
+      <tbody>
+        <tr><td>Reads as</td><td>for each item in the group</td><td>repeat until the condition fails</td></tr>
+        <tr><td>Number of rounds</td><td>usually known</td><td>often unknown</td></tr>
+        <tr><td>Counter update</td><td>automatic</td><td>your job (forget it = infinite loop)</td></tr>
+        <tr><td>Typical use</td><td>lists, text, range()</td><td>input checks, menus, games, digits</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 17 -->
+<section id="jump">
+  <div class="sec-head"><span class="num">17</span><h2>break, continue and pass</h2></div>
+  <p>These three keywords change the normal flow of a loop. <code>break</code> and <code>continue</code> almost always sit inside an <code>if</code>, because on their own they would fire in the very first round.</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+for item in iterable:             # works the same inside a while loop
+    if stop_condition:
+        break                     # leave the loop completely
+    if skip_condition:
+        continue                  # skip the rest of this round, start the next
+    # normal work for the item
+
+pass                              # do nothing (placeholder)
+</pre></div></div>
+  <div class="legend">
+    <div><b>break</b> ends the nearest loop at once; the code after the loop runs next</div>
+    <div><b>continue</b> jumps back to the top; the loop itself carries on</div>
+    <div><b>pass</b> does nothing; keeps an empty block legal</div>
+  </div>
+  <h3>break</h3>
+<div class="cols"><div class="code"><pre class="py">
+for num in range(1, 11):
+    if num == 3:
+        break
+    print(num)
+</pre></div><div class="out">1
+2</div></div>
+  <p>Only 1 and 2 are printed: when <code>num</code> equals 3 the loop ends immediately. The same idea with user input, stopping when the counter reaches the number typed:</p>
+<div class="cols"><div class="code"><pre class="py">
+number = int(input(&quot;Enter a number: &quot;))
+for i in range(1, 6):
+
+    # Terminate the loop if i equals number
+    if i == number:
+        break
+    print(i)
+</pre></div><div class="out">Enter a number: 3
+1
+2</div></div>
+  <p><code>break</code> is also how a <code>while True</code> loop ends. Here a negative number is the exit:</p>
+<div class="cols"><div class="code"><pre class="py">
+while True:
+    number = int(input(&quot;Enter a number: &quot;))
+    if number &lt; 0:
+        break
+    print(f&quot;You entered {number}&quot;)
+</pre></div><div class="out">Enter a number: 5
+You entered 5
+Enter a number: 0
+You entered 0
+Enter a number: -2</div></div>
+  <h3>continue</h3>
+<div class="cols"><div class="code"><pre class="py">
+for num in range(1, 6):
+    if num == 3:
+        continue
+    print(num)
+</pre></div><div class="out">1
+2
+4
+5</div></div>
+  <p>The number 3 is skipped, the loop carries on. Skipping even numbers prints the odd ones; the same trick in a <code>while</code> loop (notice that the counter update comes <b>before</b> <code>continue</code>, otherwise it would loop forever):</p>
+<div class="cols"><div class="code"><pre class="py">
+for i in range(1, 11):
+    if i % 2 == 0:
+        continue
+    print(i, end=&quot; &quot;)
+print()
+
+i = 0
+while i &lt;= 10:
+    i += 1
+    # Skip odd numbers
+    if i % 2 != 0:
+        continue
+    print(i, end=&quot; &quot;)
+</pre></div><div class="out">1 3 5 7 9 
+2 4 6 8 10 </div></div>
+  <p>Both together: add positive numbers, skip negatives, stop at zero.</p>
+<div class="cols"><div class="code"><pre class="py">
+total = 0
+
+while True:
+    number = int(input(&quot;Enter a number (0 to stop): &quot;))
+
+    # Skip negative numbers
+    if number &lt; 0:
+        continue
+
+    # End the loop if the user enters 0
+    if number == 0:
+        break
+
+    total += number
+
+print(f&quot;Sum of positive numbers: {total}&quot;)
+</pre></div><div class="out">Enter a number (0 to stop): 5
+Enter a number (0 to stop): -3
+Enter a number (0 to stop): 10
+Enter a number (0 to stop): 0
+Sum of positive numbers: 15</div></div>
+  <p>On a text, one loop with <code>continue</code> and the same loop with <code>break</code>:</p>
+<div class="cols"><div class="code"><pre class="py">
+for ch in &quot;geeksforgeeks&quot;:
+    if ch == &quot;e&quot; or ch == &quot;s&quot;:
+        continue
+    print(ch, end=&quot;&quot;)
+print()
+
+for ch in &quot;geeksforgeeks&quot;:
+    if ch == &quot;e&quot; or ch == &quot;s&quot;:
+        break
+    print(ch, end=&quot;&quot;)
+print()
+</pre></div><div class="out">gkforgk
+g</div></div>
+  <h3>pass</h3>
+  <p>A block can never be empty, and a comment does not count. <code>pass</code> is a statement that does nothing, so you can sketch the structure first and fill in the details later. It works in <code>if</code>, loops, functions and classes.</p>
+<div class="cols"><div class="code"><pre class="py">
+is_valid = True
+if is_valid:
+    pass                      # TODO: nothing to do yet
+else:
+    print(&quot;Login invalid. Redirect to form.&quot;)
+
+for i in range(3):
+    pass                      # TODO: decide what to do each round
+
+def calculate_discount(price):
+    pass                      # TODO: write this later
+
+print(&quot;The skeleton runs without errors&quot;)
+</pre></div><div class="out">The skeleton runs without errors</div></div>
+</section>
+
+<!-- 18 -->
+<section id="else">
+  <div class="sec-head"><span class="num">18</span><h2>Loop else: Python's secret weapon</h2></div>
+  <p>A loop can have its own <code>else</code>. It runs <b>when the loop finishes normally, that is, without meeting a break</b>. This feature is unique to Python and is perfect for “I searched everything and found nothing”.</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+for item in iterable:
+    if condition:
+        break                 # found it: leaves the loop, else is SKIPPED
+else:
+    # runs only if the loop ended WITHOUT break
+
+while condition:
+    if other_condition:
+        break
+else:
+    # runs when condition became False (no break happened)
+</pre></div></div>
+  <div class="legend">
+    <div><b>break executed</b> → the else block is skipped</div>
+    <div><b>no break</b> (loop ran out of items, or the while condition became False) → the else block runs</div>
+    <div><b>continue</b> does not stop the else from running</div>
+  </div>
+<div class="cols"><div class="code"><pre class="py">
+for i in range(1, 4):
+    print(i)
+else:
+    print(&quot;No Break&quot;)
+</pre></div><div class="out">1
+2
+3
+No Break</div></div>
+  <p>The classic use: a shop search. Same program, two different inputs:</p>
+<div class="cols"><div class="code"><pre class="py">
+stock = [&quot;Laptop&quot;, &quot;Keyboard&quot;, &quot;Mouse&quot;]
+
+order = input(&quot;Enter the product you want to buy: &quot;)
+
+for product in stock:
+    if product == order:
+        print(f&quot;{order} is available. Adding to cart.&quot;)
+        break
+else:
+    print(f&quot;Sorry, {order} is out of stock.&quot;)
+</pre></div><div class="outs"><div class="out" data-l="OUTPUT · run 1">Enter the product you want to buy: Laptop
+Laptop is available. Adding to cart.</div><div class="out" data-l="OUTPUT · run 2">Enter the product you want to buy: Monitor
+Sorry, Monitor is out of stock.</div></div></div>
+  <p>The same logic packed in a function (functions are coming soon: <code>def</code> names a block you can call again and again):</p>
+<div class="cols"><div class="code"><pre class="py">
+def search_item(lst, item):
+    for i in lst:
+        if i == item:
+            print(f&quot;Found {item} in the list.&quot;)
+            break
+    else:
+        print(f&quot;{item} is not in the list.&quot;)
+
+search_item([1, 2, 3, 4, 5], 3)
+search_item([1, 2, 3, 4, 5], 6)
+</pre></div><div class="out">Found 3 in the list.
+6 is not in the list.</div></div>
+  <h3>Finding a prime number</h3>
+  <p>A number is prime if only 1 and itself divide it. We try the possible factors from 2 upwards; one hit means “not prime” (<code>break</code>), no hits means “prime” (the loop <code>else</code>).</p>
+<div class="cols"><div class="code"><pre class="py">
+import math
+
+def is_prime(n):
+    if n &lt;= 1:
+        print(f&quot;{n} is not a prime number.&quot;)
+        return False
+
+    for i in range(2, int(math.sqrt(n)) + 1):
+        if n % i == 0:
+            print(f&quot;{n} is divisible by {i}. Not a prime number.&quot;)
+            break
+    else:
+        # This block executes if the loop did not encounter a break
+        print(f&quot;{n} is a prime number.&quot;)
+        return True
+    return False
+
+is_prime(10)
+is_prime(13)
+is_prime(1)
+is_prime(2)
+</pre></div><div class="out">10 is divisible by 2. Not a prime number.
+13 is a prime number.
+1 is not a prime number.
+2 is a prime number.</div></div>
+  <p><b>Why only up to the square root?</b> Factors come in pairs p × q = n. If p is below √n then q is above √n, so one of every pair is always at most √n. Take n = 36 (√36 = 6):</p>
+  <div class="panel tbl">
+    <table>
+      <thead><tr><th>p</th><th>q</th><th>p × q</th></tr></thead>
+      <tbody>
+        <tr><td class="c">2</td><td class="c">18</td><td class="c">36</td></tr>
+        <tr><td class="c">3</td><td class="c">12</td><td class="c">36</td></tr>
+        <tr><td class="c">4</td><td class="c">9</td><td class="c">36</td></tr>
+        <tr><td class="c">6</td><td class="c">6</td><td class="c">36 (perfect square, p = q)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">If no factor shows up by √n, none exists beyond it. For a number near a million that means about 1000 checks instead of a million.</p>
+  <h3>while … else</h3>
+  <p>It works the same way with <code>while</code>. A PIN with three attempts; the account locks only when the attempts run out, not when the correct PIN breaks the loop:</p>
+<div class="cols"><div class="code"><pre class="py">
+attempts = 3
+
+while attempts &gt; 0:
+    pin = input(&quot;Enter PIN: &quot;)
+
+    if pin == &quot;1212&quot;:
+        print(&quot;Access granted.&quot;)
+        break
+
+    attempts -= 1
+    print(f&quot;Wrong PIN. {attempts} tries left.&quot;)
+else:
+    print(&quot;Account locked. Too many failed attempts.&quot;)
+</pre></div><div class="outs"><div class="out" data-l="OUTPUT · run 1">Enter PIN: 1111
+Wrong PIN. 2 tries left.
+Enter PIN: 1212
+Access granted.</div><div class="out" data-l="OUTPUT · run 2">Enter PIN: 1111
+Wrong PIN. 2 tries left.
+Enter PIN: 2222
+Wrong PIN. 1 tries left.
+Enter PIN: 3333
+Wrong PIN. 0 tries left.
+Account locked. Too many failed attempts.</div></div></div>
+  <p>And the note about <code>continue</code>:</p>
+<div class="cols"><div class="code"><pre class="py">
+for i in range(3):
+    if i == 1:
+        continue
+    print(i)
+else:
+    print(&quot;Loop finished: continue does not block else&quot;)
+</pre></div><div class="out">0
+2
+Loop finished: continue does not block else</div></div>
+  <div class="ask"><b>Ask the class</b>In the PIN program, what is the final value of <code>attempts</code> when the user enters the correct PIN on the first try? Does the <code>else</code> block run?</div>
+  <details class="reveal"><summary>Reveal</summary><div class="body"><p><code>attempts</code> is still 3, because the <code>break</code> happened before it was reduced. The <code>else</code> block does <b>not</b> run: the loop was ended by <code>break</code>.</p></div></details>
+</section>
+
+<!-- 19 -->
+<section id="nestloop">
+  <div class="sec-head"><span class="num">19</span><h2>Nested loops: a loop inside a loop</h2></div>
+  <p>The <b>inner</b> loop runs <b>completely</b> for every single round of the <b>outer</b> loop. Think of a clock: the minute hand does a full circle for each step of the hour hand. Any mix of <code>for</code> and <code>while</code> can be nested.</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+for outer_item in outer_iterable:         # runs once per row
+    for inner_item in inner_iterable:     # runs fully for each outer round
+        # inner body
+    # after the inner loop: runs once per outer round
+
+for outer_item in outer_iterable:         # a while loop inside a for loop
+    while condition:
+        # inner body
+        update_variable
+</pre></div></div>
+  <div class="legend">
+    <div><b>total rounds</b> = outer rounds × inner rounds</div>
+    <div><b>indentation</b> tells Python which statements belong to which loop</div>
+  </div>
+<div class="cols"><div class="code"><pre class="py">
+for i in range(1, 3):
+    for j in range(1, 4):
+        print(i, j)
+</pre></div><div class="out">1 1
+1 2
+1 3
+2 1
+2 2
+2 3</div></div>
+  <p>The outer loop runs 2 times; for each, the inner loop runs 3 times, so 6 lines. Notice the line that is outside the inner loop but inside the outer one:</p>
+<div class="cols"><div class="code"><pre class="py">
+attributes = [&quot;Electric&quot;, &quot;Fast&quot;]
+cars = [&quot;Tesla&quot;, &quot;Porsche&quot;, &quot;Mercedes&quot;]
+
+# Outer loop
+for attribute in attributes:
+    # Inner loop
+    for car in cars:
+        print(attribute, car)
+
+    # This statement is outside the inner loop
+    print(&quot;-----&quot;)
+</pre></div><div class="out">Electric Tesla
+Electric Porsche
+Electric Mercedes
+-----
+Fast Tesla
+Fast Porsche
+Fast Mercedes
+-----</div></div>
+  <p>Multiplication tables of 2 and 3. The empty <code>print()</code> adds a blank line after each table:</p>
+<div class="cols"><div class="code"><pre class="py">
+for i in range(2, 4):
+    for j in range(1, 6):
+        print(i, &quot;*&quot;, j, &quot;=&quot;, i * j)
+    print()
+</pre></div><div class="out">2 * 1 = 2
+2 * 2 = 4
+2 * 3 = 6
+2 * 4 = 8
+2 * 5 = 10
+
+3 * 1 = 3
+3 * 2 = 6
+3 * 3 = 9
+3 * 4 = 12
+3 * 5 = 15</div></div>
+  <p>A <code>for</code> outside and a <code>while</code> inside: every student with every subject.</p>
+<div class="cols"><div class="code"><pre class="py">
+students = [&quot;Emma&quot;, &quot;Daniel&quot;]
+subjects = [&quot;Math&quot;, &quot;Science&quot;, &quot;English&quot;]
+
+for student in students:
+    index = 0
+    while index &lt; len(subjects):
+        print(student, &quot;-&quot;, subjects[index])
+        index += 1
+</pre></div><div class="out">Emma - Math
+Emma - Science
+Emma - English
+Daniel - Math
+Daniel - Science
+Daniel - English</div></div>
+  <h3>Patterns</h3>
+  <p>Outer loop = rows, inner loop = what to print in each row. <code>end=" "</code> keeps the stars on one line, and the empty <code>print()</code> starts the next row.</p>
+<div class="cols"><div class="code"><pre class="py">
+rows = 5
+
+for i in range(1, rows + 1):
+    for j in range(i):
+        print(&quot;*&quot;, end=&quot; &quot;)
+    print()
+</pre></div><div class="out">* 
+* * 
+* * * 
+* * * * 
+* * * * * </div></div>
+<div class="cols"><div class="code"><pre class="py">
+for i in range(1, 5):
+    for j in range(i):
+        print(i, end=&quot; &quot;)
+    print()
+</pre></div><div class="out">1 
+2 2 
+3 3 3 
+4 4 4 4 </div></div>
+  <p>A centred pyramid: each row needs some spaces, then some stars. Text can be multiplied: <code>"*" * 3</code> is <code>***</code>.</p>
+<div class="cols"><div class="code"><pre class="py">
+rows = 4
+
+for i in range(1, rows + 1):
+    print(&quot; &quot; * (rows - i) + &quot;* &quot; * i)
+</pre></div><div class="out">   * 
+  * * 
+ * * * 
+* * * * </div></div>
+  <h3>break and continue in nested loops</h3>
+  <p><code>break</code> ends only the <b>inner</b> loop it sits in. The outer loop continues normally. Here each table stops as soon as <code>j</code> reaches <code>i</code>:</p>
+<div class="cols"><div class="code"><pre class="py">
+for i in range(2, 4):
+    for j in range(1, 6):
+        if i == j:
+            break
+        print(i, &quot;*&quot;, j, &quot;=&quot;, i * j)
+    print()
+</pre></div><div class="out">2 * 1 = 2
+
+3 * 1 = 3
+3 * 2 = 6</div></div>
+  <p>With <code>continue</code> only the single pair where <code>i == j</code> is skipped:</p>
+<div class="cols"><div class="code"><pre class="py">
+for i in range(2, 4):
+    for j in range(1, 6):
+        if i == j:
+            continue
+        print(i, &quot;*&quot;, j, &quot;=&quot;, i * j)
+    print()
+</pre></div><div class="out">2 * 1 = 2
+2 * 3 = 6
+2 * 4 = 8
+2 * 5 = 10
+
+3 * 1 = 3
+3 * 2 = 6
+3 * 4 = 12
+3 * 5 = 15</div></div>
+</section>
+
+<!-- 20 -->
+<section id="comp">
+  <div class="sec-head"><span class="num">20</span><h2>List comprehensions: a loop in one line</h2></div>
+  <p>A list comprehension builds a new list with a loop written inside square brackets. It is shorter and often easier to read than a normal loop that fills a list.</p>
+<div class="syn"><div class="lbl">SYNTAX</div><div class="code"><pre class="py">
+new_list = [expression for item in iterable]
+new_list = [expression for item in iterable if condition]
+
+# nested: an inner comprehension for every outer item
+matrix = [[expression for inner in inner_iterable]
+          for outer in outer_iterable]
+</pre></div></div>
+  <div class="legend">
+    <div><b>expression</b> what to put in the list for each item</div>
+    <div><b>if condition</b> (optional) keeps only the matching items</div>
+    <div><b>nested</b> read it as: for each outer item, build one inner list</div>
+  </div>
+<div class="cols"><div class="code"><pre class="py">
+squares = [x ** 2 for x in range(10)]
+print(squares)
+
+even_squares = [x ** 2 for x in range(10) if x % 2 == 0]
+print(even_squares)
+</pre></div><div class="out">[0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+[0, 4, 16, 36, 64]</div></div>
+<div class="cols"><div class="code"><pre class="py">
+matrix = [[j for j in range(3)]
+          for i in range(3)]
+
+print(matrix)
+</pre></div><div class="out">[[0, 1, 2], [0, 1, 2], [0, 1, 2]]</div></div>
+  <p>The inner comprehension creates <code>[0, 1, 2]</code>; the outer one repeats that three times, giving three rows. The classic multiplication-table rows:</p>
+<div class="cols"><div class="code"><pre class="py">
+table = [[i * j for j in range(1, 4)] for i in range(1, 4)]
+
+for row in table:
+    print(row)
+</pre></div><div class="out">[1, 2, 3]
+[2, 4, 6]
+[3, 6, 9]</div></div>
+  <p class="note">Use a comprehension when the loop only builds a list. Use a normal loop when the body needs several statements, <code>break</code>, or <code>else</code>.</p>
+</section>
+
+<!-- 21 -->
+<section id="predict">
+  <div class="part">Test yourself</div>
+  <div class="sec-head"><span class="num">21</span><h2>Predict the output</h2></div>
+  <p>Read each program, write your answer on paper, then reveal.</p>
+  <div class="ex">
+    <div class="panel">
+      <h3>P1 · Doubling</h3>
+<div class="code"><pre class="py">
+for i in range(3):
+    print(i * 2)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">0
+2
+4</div></div></details>
+    </div>
+    <div class="panel">
+      <h3>P2 · Countdown by threes</h3>
+<div class="code"><pre class="py">
+x = 10
+while x &gt; 0:
+    x -= 3
+    print(x)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">7
+4
+1
+-2</div><p>The condition is checked before every round; x = -2 fails it, so the loop ends after printing -2.</p></div></details>
+    </div>
+    <div class="panel">
+      <h3>P3 · The else that waited</h3>
+<div class="code"><pre class="py">
+for n in [1, 3, 5]:
+    if n % 2 == 0:
+        print(&quot;found an even number&quot;)
+        break
+else:
+    print(&quot;all odd&quot;)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">all odd</div><p>No number was even, so break never ran and the loop else executed.</p></div></details>
+    </div>
+    <div class="panel">
+      <h3>P4 · Staircase of digits</h3>
+<div class="code"><pre class="py">
+for i in range(1, 4):
+    for j in range(i):
+        print(j, end=&quot;&quot;)
+    print()
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">0
+01
+012</div><p>Row i prints the numbers 0 up to i-1; the empty print() ends each row.</p></div></details>
+    </div>
+    <div class="panel">
+      <h3>P5 · Skip and stop</h3>
+<div class="code"><pre class="py">
+for i in range(1, 9):
+    if i % 2 == 0:
+        continue
+    if i &gt; 5:
+        break
+    print(i, end=&quot; &quot;)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">1 3 5 </div><p>2, 4 and 6 are skipped by continue. At 7 the break fires before the print.</p></div></details>
+    </div>
+    <div class="panel">
+      <h3>P6 · if if versus if elif</h3>
+<div class="code"><pre class="py">
+x = 15
+
+if x &gt; 10:
+    print(&quot;A&quot;)
+if x &gt; 5:
+    print(&quot;B&quot;)
+
+if x &gt; 10:
+    print(&quot;C&quot;)
+elif x &gt; 5:
+    print(&quot;D&quot;)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">A
+B
+C</div><p>Two separate ifs are both tested. An elif ladder stops at the first True branch.</p></div></details>
+    </div>
+    <div class="panel">
+      <h3>P7 · match</h3>
+<div class="code"><pre class="py">
+val = 3
+
+match val:
+    case 1 | 2:
+        print(&quot;low&quot;)
+    case 3 | 4:
+        print(&quot;mid&quot;)
+    case _:
+        print(&quot;high&quot;)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">mid</div></div></details>
+    </div>
+    <div class="panel">
+      <h3>P8 · Comprehension</h3>
+<div class="code"><pre class="py">
+print([x * x for x in range(6) if x % 2 == 0])
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">[0, 4, 16]</div><p>Even numbers 0, 2, 4 only, each squared.</p></div></details>
+    </div>
+    <div class="panel">
+      <h3>P9 · while with break and else</h3>
+<div class="code"><pre class="py">
+i = 0
+while i &lt; 5:
+    i += 1
+    if i == 3:
+        break
+else:
+    print(&quot;done&quot;)
+print(i)
+</pre></div><details class="reveal"><summary>Reveal answer</summary><div class="body"><div class="out">3</div><p>The break fired at i = 3, so the else block was skipped and the last print shows 3.</p></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- 22 -->
+<section id="bugs">
+  <div class="sec-head"><span class="num">22</span><h2>Spot the bug</h2></div>
+  <p>Each program has a mistake. Some crash, some quietly give wrong answers, and the quiet ones are the most dangerous. Find the bug before revealing.</p>
+  <div class="ex">
+    <div class="panel">
+      <h3>B1 · The loop that never ends</h3>
+<div class="code"><pre class="py">
+count = 1
+while count &lt; 5:
+    print(&quot;Counting...&quot;)
+    count = 1
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out" data-l="OUTPUT · never stops">Counting...
+Counting...
+Counting...
+... (never stops)</div><p><code>count = 1</code> inside the loop resets the counter every round, so <code>count &lt; 5</code> is always True. Fix: <code>count += 1</code>. Never forget the update step of a <code>while</code> loop.</p></div></details>
+    </div>
+    <div class="panel">
+      <h3>B2 · The missing colon</h3>
+<div class="code"><pre class="py">
+x = 10
+if x &gt; 5
+    print(&quot;big&quot;)
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out err">SyntaxError: expected &#x27;:&#x27;</div><p>Every <code>if</code>, <code>elif</code>, <code>else</code>, <code>for</code>, <code>while</code> and <code>def</code> line must end with a colon.</p></div></details>
+    </div>
+    <div class="panel">
+      <h3>B3 · One equals sign</h3>
+<div class="code"><pre class="py">
+x = 5
+if x = 5:
+    print(&quot;five&quot;)
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out err">SyntaxError: invalid syntax. Maybe you meant &#x27;==&#x27; or &#x27;:=&#x27; instead of &#x27;=&#x27;?</div><p>A single <code>=</code> stores a value; a comparison needs <code>==</code>. Fix: <code>if x == 5:</code></p></div></details>
+    </div>
+    <div class="panel">
+      <h3>B4 · Ten is missing</h3>
+<div class="code"><pre class="py">
+for i in range(1, 10):
+    print(i, end=&quot; &quot;)
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out">1 2 3 4 5 6 7 8 9 </div><p>No error message, just a wrong answer: stop is never included. To print 1 to 10 write <code>range(1, 11)</code>.</p></div></details>
+    </div>
+    <div class="panel">
+      <h3>B5 · The wrong largest</h3>
+<div class="code"><pre class="py">
+a, b, c = 3, 2, 9
+
+if a &gt; b or a &gt; c:
+    print(&quot;a is the largest&quot;)
+elif b &gt; a or b &gt; c:
+    print(&quot;b is the largest&quot;)
+else:
+    print(&quot;c is the largest&quot;)
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out">a is the largest</div><p><code>a &gt; b or a &gt; c</code> needs only one test to pass. “Largest” means bigger than <b>both</b>, so use <code>and</code> (and <code>&gt;=</code> to allow ties): <code>if a &gt;= b and a &gt;= c:</code></p></div></details>
+    </div>
+    <div class="panel">
+      <h3>B6 · The distinction nobody gets</h3>
+<div class="code"><pre class="py">
+marks = 95
+
+if marks &gt;= 40:
+    print(&quot;Pass&quot;)
+elif marks &gt;= 90:
+    print(&quot;Distinction&quot;)
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out">Pass</div><p>A score of 95 is also 40 or more, so the first branch wins and the second is never reached. In an elif ladder put the <b>most specific</b> condition first: test <code>marks &gt;= 90</code> before <code>marks &gt;= 40</code>.</p></div></details>
+    </div>
+    <div class="panel">
+      <h3>B7 · Text versus number</h3>
+<div class="code"><pre class="py">
+age = input(&quot;Enter your age: &quot;)
+
+if age &gt;= 18:
+    print(&quot;Adult&quot;)
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out err">TypeError: &#x27;&gt;=&#x27; not supported between instances of &#x27;str&#x27; and &#x27;int&#x27;</div><p><code>input()</code> returns text. Convert it: <code>age = int(input(...))</code>.</p></div></details>
+    </div>
+    <div class="panel">
+      <h3>B8 · The else at the wrong level</h3>
+<div class="code"><pre class="py">
+for n in [1, 2, 3]:
+    if n == 5:
+        print(&quot;found&quot;)
+        break
+    else:
+        print(&quot;not found&quot;)
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out">not found
+not found
+not found</div><p>The <code>else</code> is indented under the <code>if</code>, so it belongs to the <code>if</code>, not to the loop. It fires in every round that fails the test. For “not found after the whole search”, align <code>else</code> with the <code>for</code>.</p></div></details>
+    </div>
+    <div class="panel">
+      <h3>B9 · The 1900 problem</h3>
+<div class="code"><pre class="py">
+year = int(input(&quot;Enter the year: &quot;))
+
+if year % 4 == 0:
+    print(&quot;leap year&quot;)
+else:
+    print(&quot;not a leap year&quot;)
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out">Enter the year: 1900
+leap year</div><p>Divisible by 4 is not the whole rule. A century year is a leap year only if divisible by 400. Fix: <code>if (year % 4 == 0 and year % 100 != 0) or year % 400 == 0:</code></p></div></details>
+    </div>
+    <div class="panel">
+      <h3>B10 · Break outside a loop</h3>
+<div class="code"><pre class="py">
+x = 10
+if x &gt; 5:
+    break
+</pre></div><details class="reveal"><summary>Reveal the bug</summary><div class="body"><div class="out err">SyntaxError: &#x27;break&#x27; outside loop</div><p><code>break</code> and <code>continue</code> only make sense inside a loop. An <code>if</code> on its own is not a loop, so there is nothing to break out of.</p></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- 23 -->
+<section id="practice">
+  <div class="sec-head"><span class="num">23</span><h2>Practice: write it yourself</h2></div>
+  <p>Open IDLE or Thonny and try each one first. Use the hint only if stuck for 3 minutes. Check the solution after your code runs. The shaded box shows what a correct program prints.</p>
+  <div class="ex">
+
+    <div class="panel">
+      <div class="ex-head"><h3>E1 · Positive, negative or zero</h3><span class="lvl">easy</span></div>
+      <p>Read a number and print whether it is positive, negative or zero. Try 4, -9 and 0.</p>
+<div class="out" data-l="OUTPUT · run 1">Enter a number: 4
+positive</div><div class="out" data-l="OUTPUT · run 2">Enter a number: -9
+negative</div><div class="out" data-l="OUTPUT · run 3">Enter a number: 0
+zero</div><details class="reveal"><summary>Hint</summary><div class="body"><p>You need three branches: <code>if</code>, <code>elif</code> and <code>else</code>.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E2 · Vehicle speed</h3><span class="lvl">easy</span></div>
+      <p>Read a speed and print: up to 20 “slow”, up to 40 “average”, up to 60 “fast”, up to 100 “super fast”, above that “not safe to drive”. (The class draft had two branches that both said “fast”: avoid that.)</p>
+<div class="out" data-l="OUTPUT · run 1">Enter the speed of the vehicle: 55
+fast</div><div class="out" data-l="OUTPUT · run 2">Enter the speed of the vehicle: 130
+not safe to drive</div><details class="reveal"><summary>Hint</summary><div class="body"><p>Use an elif ladder from the smallest limit to the largest; each rung needs only an upper limit.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E3 · Multiplication table</h3><span class="lvl">easy</span></div>
+      <p>Read a number and print its table from 1 to 10.</p>
+<div class="out">Enter a number: 7
+7 x 1 = 7
+7 x 2 = 14
+7 x 3 = 21
+7 x 4 = 28
+7 x 5 = 35
+7 x 6 = 42
+7 x 7 = 49
+7 x 8 = 56
+7 x 9 = 63
+7 x 10 = 70</div><details class="reveal"><summary>Hint</summary><div class="body"><p><code>for i in range(1, 11):</code> and print <code>n, "x", i, "=", n * i</code>.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E4 · Multiples of three</h3><span class="lvl">easy</span></div>
+      <p>Print every number from 1 to 20 that is divisible by 3, on one line.</p>
+<div class="out">3 6 9 12 15 18 </div><details class="reveal"><summary>Hint</summary><div class="body"><p>Either use <code>range(3, 21, 3)</code> or loop 1 to 20 and test <code>n % 3 == 0</code>.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E5 · Leap year, properly</h3><span class="lvl med">medium</span></div>
+      <p>Read a year and say whether it is a leap year. Test 2000, 1900 and 2026.</p>
+<div class="out" data-l="OUTPUT · run 1">Enter the year: 2000
+leap year</div><div class="out" data-l="OUTPUT · run 2">Enter the year: 1900
+not a leap year</div><div class="out" data-l="OUTPUT · run 3">Enter the year: 2026
+not a leap year</div><details class="reveal"><summary>Hint</summary><div class="body"><p>Leap if divisible by 4 and not by 100, or if divisible by 400.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E6 · FizzBuzz</h3><span class="lvl med">medium</span></div>
+      <p>For the numbers 1 to 15: print “FizzBuzz” if divisible by 3 and 5, “Fizz” if divisible by 3, “Buzz” if divisible by 5, otherwise the number.</p>
+<div class="out">1
+2
+Fizz
+4
+Buzz
+Fizz
+7
+8
+Fizz
+Buzz
+11
+Fizz
+13
+14
+FizzBuzz</div><details class="reveal"><summary>Hint</summary><div class="body"><p>Test the combined case (divisible by both) first, otherwise it is never reached.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E7 · Factorial</h3><span class="lvl med">medium</span></div>
+      <p>Read n and print n! (for example 5! = 5 × 4 × 3 × 2 × 1 = 120).</p>
+<div class="out">Enter n: 5
+5 ! = 120</div><details class="reveal"><summary>Hint</summary><div class="body"><p>Accumulator that starts at 1 and multiplies by every number from 1 to n.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E8 · Palindrome number</h3><span class="lvl med">medium</span></div>
+      <p>A number is a palindrome if it reads the same backwards (121 yes, 123 no). Use the reverse trick from section 15.</p>
+<div class="out" data-l="OUTPUT · run 1">Enter a number: 121
+121 is a palindrome</div><div class="out" data-l="OUTPUT · run 2">Enter a number: 123
+123 is not a palindrome</div><details class="reveal"><summary>Hint</summary><div class="body"><p>Reverse a copy of the number with a while loop, then compare the reverse with the original.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E9 · Fibonacci</h3><span class="lvl med">medium</span></div>
+      <p>Print the first 10 Fibonacci numbers: 0 1 1 2 3 5 … (each is the sum of the previous two).</p>
+<div class="out">0 1 1 2 3 5 8 13 21 34 </div><details class="reveal"><summary>Hint</summary><div class="body"><p>Keep two variables <code>a, b = 0, 1</code>. In every round print <code>a</code>, then update with <code>a, b = b, a + b</code>.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E10 · Neat 5 × 5 table</h3><span class="lvl med">medium</span></div>
+      <p>Print the multiplication grid for 1 to 5, five numbers per row, in neat columns.</p>
+<div class="out">  1  2  3  4  5
+  2  4  6  8 10
+  3  6  9 12 15
+  4  8 12 16 20
+  5 10 15 20 25</div><details class="reveal"><summary>Hint</summary><div class="body"><p>Nested loops. <code>f"{i * j:3}"</code> pads each number to width 3. Finish each row with an empty <code>print()</code>.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E11 · ATM PIN</h3><span class="lvl hard">challenge</span></div>
+      <p>The correct PIN is 1212. Give the user 3 attempts. Print “Access granted.” on success or “Card locked.” if all attempts fail. Test with 1111, 2222, 1212.</p>
+<div class="out" data-l="OUTPUT · run 1">Enter PIN: 1111
+Wrong PIN. 2 tries left.
+Enter PIN: 2222
+Wrong PIN. 1 tries left.
+Enter PIN: 1212
+Access granted.</div><div class="out" data-l="OUTPUT · run 2">Enter PIN: 1111
+Wrong PIN. 2 tries left.
+Enter PIN: 2222
+Wrong PIN. 1 tries left.
+Enter PIN: 3333
+Wrong PIN. 0 tries left.
+Card locked.</div><details class="reveal"><summary>Hint</summary><div class="body"><p>A while loop on <code>attempts &gt; 0</code> with a <code>break</code> on success. The locked message belongs in the loop <code>else</code>.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E12 · Menu-driven calculator</h3><span class="lvl hard">challenge</span></div>
+      <p>Show a menu repeatedly: a) Add, b) Subtract, c) Quit. Ask for two numbers for a or b and show the result. Any other key prints “Invalid choice”. The program ends only on c.</p>
+<div class="out">--- MENU ---
+a) Add   b) Subtract   c) Quit
+Choose: a
+First number: 2
+Second number: 3
+Result: 5.0
+
+--- MENU ---
+a) Add   b) Subtract   c) Quit
+Choose: z
+Invalid choice, try again
+
+--- MENU ---
+a) Add   b) Subtract   c) Quit
+Choose: b
+First number: 10
+Second number: 4
+Result: 6.0
+
+--- MENU ---
+a) Add   b) Subtract   c) Quit
+Choose: c
+Bye!</div><details class="reveal"><summary>Hint</summary><div class="body"><p><code>while True</code> keeps the menu alive, <code>match</code> picks the action, and <code>break</code> inside <code>case "c"</code> is the only exit.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E13 · Guess the number</h3><span class="lvl hard">challenge</span></div>
+      <p>The computer picks a secret number from 1 to 20 (use <code>import random</code> and <code>random.randint(1, 20)</code>). The player gets 5 attempts and hints “Too low” or “Too high”. Congratulate on a win, reveal the number on a loss.</p>
+<div class="out" data-l="OUTPUT · sample run (the secret changes every time)">Attempt 1/5, guess 1-20: 10
+Too low
+Attempt 2/5, guess 1-20: 15
+You got it in 2 tries!</div><details class="reveal"><summary>Hint</summary><div class="body"><p>A <code>for attempt in range(1, 6)</code> loop with <code>break</code> on a correct guess, and the loop <code>else</code> for running out of attempts.</p></div></details>
+    </div>
+
+    <div class="panel">
+      <div class="ex-head"><h3>E14 · Pyramid of numbers</h3><span class="lvl hard">challenge</span></div>
+      <p>Print a centred pyramid of 5 rows where row i shows the number i, i times.</p>
+<div class="out">    1 
+   2 2 
+  3 3 3 
+ 4 4 4 4 
+5 5 5 5 5 </div><details class="reveal"><summary>Hint</summary><div class="body"><p>Each row needs <code>rows - i</code> leading spaces. Build the numbers with <code>(str(i) + " ") * i</code>.</p></div></details>
+    </div>
+
+  </div>
+</section>
+
+<!-- 24 -->
+<section id="quiz">
+  <div class="sec-head"><span class="num">24</span><h2>Quick quiz</h2></div>
+  <p>Answer all ten. Your score appears at the end.</p>
+  <div class="panel" id="quizBox"></div>
+  <div class="ctrl"><span class="score" id="quizScore"></span><button class="btn ghost" id="quizReset" type="button">Try again</button></div>
+</section>
+
+<!-- 25 -->
+<section id="wrap">
+  <div class="part">Wrap-up</div>
+  <div class="sec-head"><span class="num">25</span><h2>Summary and homework</h2></div>
+  <h3>Decisions</h3>
+  <div class="cheat">
+    <div><b>if</b>Run a block only when the condition is True. Indent the block.</div>
+    <div><b>if … else</b>Exactly one of two blocks runs. <code>else</code> has no condition.</div>
+    <div><b>elif</b>Many roads. Top to bottom, the first True wins; order matters.</div>
+    <div><b>and / or / not</b>Combine conditions. “Largest” needs <b>and</b>. Order: not, and, or.</div>
+    <div><b>nested if</b>A decision inside a decision. Prefer <code>and</code> when it says the same.</div>
+    <div><b>ternary</b><code>a if cond else b</code> picks a value in one line.</div>
+    <div><b>match-case</b>Compare exact values. <code>|</code> means or, <code>_</code> is the default.</div>
+  </div>
+  <h3>Loops</h3>
+  <div class="cheat">
+    <div><b>for item in iterable</b>Once per item. Lists, text, tuples, dictionaries, range, files.</div>
+    <div><b>range(start, stop, step)</b>Stop is never included. Negative step counts down.</div>
+    <div><b>enumerate / .items()</b>Index with value; key with value.</div>
+    <div><b>while condition</b>Repeat until the condition is False. Always update the variable.</div>
+    <div><b>break</b>Leave the nearest loop immediately.</div>
+    <div><b>continue</b>Skip to the next round of the loop.</div>
+    <div><b>pass</b>Empty placeholder; does nothing.</div>
+    <div><b>loop else</b>Runs only when the loop ended without <code>break</code>.</div>
+    <div><b>nested loops</b>Inner loop runs fully for every outer round: rows and columns.</div>
+    <div><b>comprehension</b><code>[expr for x in iterable if cond]</code> builds a list in one line.</div>
+  </div>
+  <div class="panel">
+    <h3>Golden rules</h3>
+    <ul class="plain">
+      <li>Indent carefully and end every header line with a colon.</li>
+      <li><code>=</code> stores, <code>==</code> compares.</li>
+      <li>Every <code>while</code> needs a start value, a condition and an update.</li>
+      <li>Test with edge cases: 0, a negative number, an empty list, exactly the boundary.</li>
+      <li>Run your code! Reading is not testing.</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h3>Homework (submit next class)</h3>
+    <p>1. Solve E5, E8 and E11 and bring the code running.</p>
+    <p>2. Write a program that asks for a number n and prints a right-angled triangle of n rows, then the same triangle upside down.</p>
+    <p>3. Write a “password checker” that keeps asking until the password has at least 8 characters, then prints how many attempts it took.</p>
+    <p>4. In your own words, explain when you would choose <code>while</code> over <code>for</code>, with one example for each.</p>
+  </div>
+  <p class="note">Next lecture: functions, which let us give a name to a block of code and reuse it.</p>
+</section>
+
+<footer>Basic Python Programming · Control Flow lecture</footer>
+</div>
+
+<script>
+(function(){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const KW = new Set(['class','def','return','if','else','elif','for','in','while','pass','True','False','None','and','or','not','import','from','break','continue','match','case','with','as','yield']);
+  const BI = new Set(['print','type','len','range','int','str','float','input','enumerate','list','bool','open','sum']);
+  function hl(src){
+    const re = /(#[^\n]*)|(f?"[^"\n]*"|f?'[^'\n]*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_][A-Za-z0-9_]*)/g;
+    let out='', last=0, m, prev='';
+    while((m = re.exec(src))){
+      out += esc(src.slice(last, m.index));
+      if(m[1]){ out += '<span class="t-com">'+esc(m[1])+'</span>'; prev=''; }
+      else if(m[2]){ out += '<span class="t-str">'+esc(m[2])+'</span>'; prev=''; }
+      else if(m[3]){ out += '<span class="t-num">'+m[3]+'</span>'; prev=''; }
+      else {
+        const w = m[4];
+        if(KW.has(w)) out += '<span class="t-kw">'+w+'</span>';
+        else if(w==='self') out += '<span class="t-self">self</span>';
+        else if(prev==='def' || prev==='class') out += '<span class="t-def">'+w+'</span>';
+        else if(BI.has(w)) out += '<span class="t-bi">'+w+'</span>';
+        else out += w;
+        prev = w;
+      }
+      last = re.lastIndex;
+    }
+    return out + esc(src.slice(last));
+  }
+
+  function addCopy(box, text){
+    const b = document.createElement('button');
+    b.className='copy'; b.type='button'; b.textContent='Copy';
+    b.addEventListener('click', ()=>{
+      const done = ()=>{ b.textContent='Copied'; setTimeout(()=>b.textContent='Copy',1400); };
+      try{
+        navigator.clipboard.writeText(text).then(done, ()=>selectIn(box));
+      }catch(e){ selectIn(box); }
+    });
+    box.appendChild(b);
+  }
+  function selectIn(box){
+    const r = document.createRange(); r.selectNodeContents(box.querySelector('pre'));
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+
+  document.querySelectorAll('pre.py').forEach(pre=>{
+    const src = pre.textContent.replace(/^\n+/,'').replace(/\s+$/,'');
+    pre.innerHTML = hl(src);
+    addCopy(pre.parentElement, src);
+  });
+
+  /* ---- decision lab ---- */
+  const RUNGS = [
+    ['if','marks < 0 or marks > 100', m => m<0 || m>100, 'Invalid input'],
+    ['elif','marks < 40', m => m<40, 'Fail'],
+    ['elif','marks <= 60', m => m<=60, 'Pass'],
+    ['elif','marks <= 80', m => m<=80, 'First class'],
+    ['else','(nothing left)', () => true, 'First class with distinction']
+  ];
+  const dlIn = document.getElementById('dl-marks'), dlBox = document.getElementById('dlRungs'), dlOut = document.getElementById('dlOut');
+  function renderDecision(){
+    const m = parseInt(dlIn.value,10);
+    dlBox.innerHTML='';
+    if(isNaN(m)){ dlOut.textContent='(type a whole number)'; return; }
+    let hit=-1;
+    RUNGS.forEach((r,i)=>{
+      const d = document.createElement('div'); d.className='rung';
+      const head = '<b>'+r[0]+'</b> '+esc(r[1])+(r[0]==='else'?'':':');
+      if(hit===-1){
+        const ok = r[2](m);
+        if(ok){ hit=i; d.classList.add('hit'); d.innerHTML = head+'<span class="st">'+(r[0]==='else'?'nothing above was True, so this runs':'True, so this block runs')+' → print("'+esc(r[3])+'")</span>'; dlOut.textContent = r[3]; }
+        else { d.classList.add('skip'); d.innerHTML = head+'<span class="st">False, skipped</span>'; }
+      } else { d.classList.add('never'); d.innerHTML = head+'<span class="st">never checked</span>'; }
+      dlBox.appendChild(d);
+    });
+  }
+  dlIn.addEventListener('input', renderDecision);
+  renderDecision();
+
+  /* ---- range lab ---- */
+  const rs = document.getElementById('rl-start'), re_ = document.getElementById('rl-stop'), rp = document.getElementById('rl-step');
+  const rlLine = document.getElementById('rlLine'), rlChips = document.getElementById('rlChips'), rlCount = document.getElementById('rlCount');
+  function renderRange(){
+    const a=parseInt(rs.value,10), b=parseInt(re_.value,10), s=parseInt(rp.value,10);
+    rlChips.innerHTML='';
+    if([a,b,s].some(isNaN)){ rlLine.textContent='fill in all three boxes'; rlCount.textContent=''; return; }
+    rlLine.textContent='for i in range('+a+', '+b+', '+s+'):';
+    if(s===0){ rlChips.innerHTML='<span class="chip" style="border-color:var(--bad);color:var(--bad)">ValueError: range() arg 3 must not be zero</span>'; rlCount.textContent='A step of 0 would never move.'; return; }
+    const vals=[]; for(let i=a; s>0 ? i<b : i>b; i+=s){ vals.push(i); if(vals.length>=60) break; }
+    vals.forEach(v=>{ const c=document.createElement('span'); c.className='chip'; c.textContent=v; rlChips.appendChild(c); });
+    rlCount.textContent = vals.length===0 ? 'Empty: the loop body runs 0 times (stop is already reached)' : (vals.length>=60 ? 'showing the first 60 values' : 'The body runs '+vals.length+' time'+(vals.length>1?'s':'')+'. The stop value '+b+' is never included.');
+  }
+  [rs,re_,rp].forEach(i=>i.addEventListener('input', renderRange));
+  document.querySelectorAll('#rangeLab [data-p]').forEach(b=>b.addEventListener('click', ()=>{
+    const p=b.dataset.p.split(','); rs.value=p[0]; re_.value=p[1]; rp.value=p[2]; renderRange();
+  }));
+  renderRange();
+
+  /* ---- for-loop stepper ---- */
+  const LINES = [
+    'total = 0',
+    'for i in range(1, 4):',
+    '    total += i',
+    '    print(i, total)',
+    'print("Done", total)'
+  ];
+  const STEPS = [
+    {l:0, t:'Create the accumulator <b>total</b> and set it to 0 before the loop.', mem:['total = 0'], out:''},
+    {l:1, t:'<code>range(1, 4)</code> produces 1, 2, 3. Round 1: the loop variable <b>i</b> becomes 1.', mem:['total = 0','i = 1'], out:''},
+    {l:2, t:'Add i to total: 0 + 1 = 1.', mem:['total = 1','i = 1'], out:''},
+    {l:3, t:'Print i and total. This is the last line of the loop body.', mem:['total = 1','i = 1'], out:'1 1'},
+    {l:1, t:'Back to the <code>for</code> line. Next value from the range: <b>i</b> becomes 2.', mem:['total = 1','i = 2'], out:'1 1'},
+    {l:2, t:'1 + 2 = 3.', mem:['total = 3','i = 2'], out:'1 1'},
+    {l:3, t:'Print again.', mem:['total = 3','i = 2'], out:'1 1\n2 3'},
+    {l:1, t:'Round 3: <b>i</b> becomes 3.', mem:['total = 3','i = 3'], out:'1 1\n2 3'},
+    {l:2, t:'3 + 3 = 6.', mem:['total = 6','i = 3'], out:'1 1\n2 3'},
+    {l:3, t:'Print for the last time.', mem:['total = 6','i = 3'], out:'1 1\n2 3\n3 6'},
+    {l:1, t:'The range has no values left, so the loop <b>ends</b>. Python jumps to the first line that is not indented.', mem:['total = 6','i = 3'], out:'1 1\n2 3\n3 6'},
+    {l:4, t:'Not indented, so it runs once, after the loop.', mem:['total = 6','i = 3'], out:'1 1\n2 3\n3 6\nDone 6'}
+  ];
+  const sc = document.getElementById('stepCode');
+  sc.innerHTML = LINES.map((l,i)=>'<span class="ln" data-i="'+i+'">'+(l?hl(l):' ')+'</span>').join('');
+  addCopy(sc.parentElement, LINES.join('\n'));
+  let si = 0;
+  function renderStep(){
+    const s = STEPS[si];
+    sc.querySelectorAll('.ln').forEach(el=>{ el.classList.toggle('on', +el.dataset.i===s.l); });
+    document.getElementById('stepNo').textContent = 'Step '+(si+1)+' of '+STEPS.length;
+    document.getElementById('stepText').innerHTML = s.t;
+    document.getElementById('stepMem').innerHTML = s.mem.map(m=>'<span class="box">'+esc(m)+'</span>').join('');
+    document.getElementById('stepOut').textContent = s.out || '(nothing printed yet)';
+    document.getElementById('stepPrev').disabled = si===0;
+    document.getElementById('stepNext').textContent = si===STEPS.length-1 ? 'Start over' : 'Next step →';
+  }
+  document.getElementById('stepNext').addEventListener('click', ()=>{ si = si===STEPS.length-1 ? 0 : si+1; renderStep(); });
+  document.getElementById('stepPrev').addEventListener('click', ()=>{ if(si>0){ si--; renderStep(); } });
+  renderStep();
+
+  /* ---- for or while game ---- */
+  const SORT = {
+    'Everyday life':[
+      ['Hand a worksheet to every student in the row','F','You know the group: every student. Use for.'],
+      ['Stir the tea until the sugar dissolves','W','You do not know how many stirs. Use while.'],
+      ['Brush each of your 32 teeth','F','A known collection of items. Use for.'],
+      ['Wait at the stop until the bus arrives','W','Repeat until something changes. Use while.'],
+      ['Eat every samosa on the plate','F','Every item in a group. Use for.'],
+      ['Keep revising until you understand the topic','W','Until a condition becomes true. Use while.']
+    ],
+    'Programs':[
+      ['Print the marks of every student in a list','F','Loop over every item of a list.'],
+      ['Ask for the password until it is correct','W','Unknown number of attempts.'],
+      ['Print the table of 5','F','Known count: 10 rounds.'],
+      ['Read numbers until the user types 0','W','A stop signal decides when to end.'],
+      ['Sum of the digits of a number','W','Number of digits is not known upfront (n // 10 until 0).'],
+      ['Print each letter of a name','F','Text is iterable: one letter per round.'],
+      ['Print 1 to 100','F','Known start, stop and step: range().'],
+      ['Game: keep guessing until you win','W','Could be 1 attempt or 20.']
+    ]
+  };
+  const tabs = document.getElementById('sortTabs'), list = document.getElementById('sortList'), score = document.getElementById('sortScore');
+  let current = 'Everyday life', answers = {};
+  Object.keys(SORT).forEach(k=>{
+    const t = document.createElement('button'); t.type='button'; t.className='tab'; t.textContent=k;
+    t.addEventListener('click', ()=>{ current=k; answers={}; renderSort(); });
+    tabs.appendChild(t);
+  });
+  function renderSort(){
+    [...tabs.children].forEach(t=>t.setAttribute('aria-pressed', t.textContent===current));
+    list.innerHTML='';
+    let right=0;
+    SORT[current].forEach(([w,a,why],i)=>{
+      const d = document.createElement('div'); d.className='item';
+      const pick = answers[i];
+      if(pick){ d.classList.add(pick===a?'ok':'no'); if(pick===a) right++; }
+      d.innerHTML = '<span class="w">'+esc(w)+'</span>';
+      const btns = document.createElement('div'); btns.className='btns';
+      [['F','for loop'],['W','while loop']].forEach(([v,l])=>{
+        const b=document.createElement('button'); b.type='button'; b.textContent=l;
+        b.addEventListener('click', ()=>{ answers[i]=v; renderSort(); });
+        btns.appendChild(b);
+      });
+      d.appendChild(btns);
+      if(pick){
+        const fb=document.createElement('span'); fb.className='fb';
+        fb.textContent = (pick===a ? 'Correct. ' : 'Not quite. ') + why;
+        d.appendChild(fb);
+      }
+      list.appendChild(d);
+    });
+    score.textContent = 'Score: '+right+' / '+SORT[current].length + (Object.keys(answers).length===SORT[current].length && right===SORT[current].length ? '  · Perfect!' : '');
+  }
+  document.getElementById('sortReset').addEventListener('click', ()=>{ answers={}; renderSort(); });
+  renderSort();
+
+  /* ---- quiz ---- */
+  const QUIZ = [
+    ['What does an elif ladder do when several conditions are True?',['Runs all of them','Runs only the first True branch','Runs only the last True branch','Raises an error'],1,'Python stops at the first True branch and skips the rest.'],
+    ['Which operator asks “are these equal?”',['=','==','!=','=>'],1,'Single = stores a value, double == compares.'],
+    ['How many numbers does range(2, 10, 2) produce?',['3','4','5','8'],1,'2, 4, 6, 8. The stop value 10 is never included.'],
+    ['What is the output of  for i in range(3): print(i)  ?',['1 2 3','0 1 2','0 1 2 3','1 2'],1,'range(3) gives 0, 1, 2.'],
+    ['Which loop is the best fit for “ask the password until it is correct”?',['for','while','either is wrong','nested for'],1,'The number of attempts is unknown: while.'],
+    ['What does break do inside a nested loop?',['Ends all loops','Ends only the inner loop it is in','Skips one round','Restarts the program'],1,'break leaves the nearest enclosing loop only.'],
+    ['When does the else of a for loop run?',['Always','Only if the loop ended without break','Only if break was executed','Never'],1,'for … else: else runs when no break happened.'],
+    ['What does continue do?',['Leaves the loop','Skips the rest of this round and starts the next','Does nothing','Restarts the loop from the first item'],1,'The loop itself carries on with the next item.'],
+    ['Why can this loop run forever?  count = 1 / while count < 5: / print("x")',['count is never changed','print is wrong','range is missing','else is missing'],0,'No update step, so the condition stays True.'],
+    ['In  x = 4 if y > 0 else 9  what is x when y is 5?',['4','9','0','Error'],0,'The condition y > 0 is True, so the first value is chosen.']
+  ];
+  const qb = document.getElementById('quizBox'), qs = document.getElementById('quizScore');
+  let qa = {};
+  function renderQuiz(){
+    qb.innerHTML='';
+    QUIZ.forEach(([q,opts,ans,why],i)=>{
+      const d = document.createElement('div'); d.className='q';
+      d.innerHTML = '<div class="qt">'+(i+1)+'. '+esc(q)+'</div>';
+      const o = document.createElement('div'); o.className='opts';
+      opts.forEach((t,j)=>{
+        const b = document.createElement('button'); b.type='button'; b.className='opt'; b.textContent=t;
+        if(i in qa){ b.disabled=true; if(j===ans) b.classList.add('right'); else if(j===qa[i]) b.classList.add('wrong'); }
+        b.addEventListener('click', ()=>{ qa[i]=j; renderQuiz(); });
+        o.appendChild(b);
+      });
+      d.appendChild(o);
+      if(i in qa){ const f=document.createElement('div'); f.className='qfb'; f.textContent=(qa[i]===ans?'Correct. ':'Not quite. ')+why; d.appendChild(f); }
+      qb.appendChild(d);
+    });
+    const n = Object.keys(qa).length, r = QUIZ.filter((q,i)=>qa[i]===q[2]).length;
+    qs.textContent = n<QUIZ.length ? 'Answered '+n+' of '+QUIZ.length : 'Final score: '+r+' / '+QUIZ.length + (r===QUIZ.length?' · Excellent!': r>=7?' · Well done':' · Review sections 4 to 20 and try again');
+  }
+  document.getElementById('quizReset').addEventListener('click', ()=>{ qa={}; renderQuiz(); });
+  renderQuiz();
+})();
+</script>
+</body>
+</html>
